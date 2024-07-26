@@ -98,7 +98,7 @@ class TFAuthoritativeScanner:
                 for line_number, line in lines:
                     print(f"AUTHORITATIVE: {file_path}:{line_number}: {line}")
             authoritative_files = len(all_authoritative_lines)
-            print(f"ERROR: {authoritative_files} of {total_files} scanned files are authoritative.")
+            print(f"FAIL: {authoritative_files} of {total_files} scanned files are authoritative.")
             sys.exit(1)
         else:
             authoritative_files = len(all_authoritative_lines)
