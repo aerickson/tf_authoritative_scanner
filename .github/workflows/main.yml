@@ -74,8 +74,11 @@ jobs:
       - name: Run tests
         run: |
           poetry run python -m pytest -sxv
-      - name: Generate coverage
-        run: poetry run pytest -vv --cov=tf_authoritative_scanner --cov-report=lcov
+      - name: Run coverage
+        run: |
+          poetry run ./gen_coverage.sh
+      # - name: Generate coverage for coveralls
+      #   run: poetry run pytest -vv --cov=tf_authoritative_scanner --cov-report=lcov
       # - name: Report Coveralls (Linux)
       #   run: curl -sL https://coveralls.io/coveralls-linux.tar.gz | tar -xz && ./coveralls
       #   env:
