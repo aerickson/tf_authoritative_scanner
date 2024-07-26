@@ -86,7 +86,6 @@ class TFAuthoritativeScanner:
                 print(f"{authoritative_files} of {total_files} scanned files are authoritative.")
             sys.exit(1)
         else:
-            # print(f"No authoritative resources found in {total_files} scanned files.")
             authoritative_files = len(all_authoritative_lines)
             print(f"{authoritative_files} of {total_files} scanned files are authoritative.")
             sys.exit(0)
