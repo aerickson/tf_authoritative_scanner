@@ -141,7 +141,7 @@ def test_run_verbose_level_2(temp_non_authoritative_tf_file, capsys):
     with pytest.raises(SystemExit):
         scanner.run()
     captured = capsys.readouterr()
-    assert "non-authoritative: " in captured.out
+    assert "OK: " in captured.out
 
 
 def test_exception_comment_same_line(temp_tf_file_with_exception_same_line):

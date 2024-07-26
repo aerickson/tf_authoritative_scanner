@@ -92,7 +92,7 @@ class TFAuthoritativeScanner:
         )
         if self.verbosity >= 2:
             for file_path in non_authoritative_files:
-                print(f"non-authoritative: {file_path}")
+                print(f"OK: {file_path}")
         if all_authoritative_lines:
             if self.verbosity >= 1:
                 for file_path, lines in all_authoritative_lines:
