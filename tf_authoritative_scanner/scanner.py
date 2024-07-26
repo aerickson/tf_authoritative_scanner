@@ -54,9 +54,9 @@ class TFAuthoritativeScanner:
                 continue
             # Check if the line contains any authoritative resource and is not excepted
             if any(resource in line for resource in self.authoritative_resources):
-                if not self.exception_comment_pattern.search(
-                    line
-                ) and not self.exception_comment_pattern.search(previous_line):
+                if not self.exception_comment_pattern.search(line) and not self.exception_comment_pattern.search(
+                    previous_line
+                ):
                     authoritative_lines.append((line_number, stripped_line))
                     non_authoritative = False
                     break  # No need to keep checking, as the file is authoritative
@@ -76,9 +76,7 @@ class TFAuthoritativeScanner:
                 if file.endswith(".tf"):
                     total_files += 1
                     file_path = os.path.join(root, file)
-                    authoritative_lines, non_authoritative = (
-                        self.check_file_for_authoritative_resources(file_path)
-                    )
+                    authoritative_lines, non_authoritative = self.check_file_for_authoritative_resources(file_path)
                     if authoritative_lines:
                         all_authoritative_lines.append((file_path, authoritative_lines))
                     if self.verbosity >= 2 and non_authoritative:
@@ -99,22 +97,16 @@ class TFAuthoritativeScanner:
                     for line_number, line in lines:
                         print(f"AUTHORITATIVE: {file_path}:{line_number}: {line}")
             authoritative_files = len(all_authoritative_lines)
-            print(
-                f"ERROR: {authoritative_files} of {total_files} scanned files are authoritative."
-            )
+            print(f"ERROR: {authoritative_files} of {total_files} scanned files are authoritative.")
             sys.exit(1)
         else:
             authoritative_files = len(all_authoritative_lines)
-            print(
-                f"PASS: {authoritative_files} of {total_files} scanned files are authoritative."
-            )
+            print(f"PASS: {authoritative_files} of {total_files} scanned files are authoritative.")
             sys.exit(0)
 
 
 def main():
-    parser = argparse.ArgumentParser(
-        description="Static analysis of Terraform files for authoritative GCP resources."
-    )
+    parser = argparse.ArgumentParser(description="Static analysis of Terraform files for authoritative GCP resources.")
     parser.add_argument("directory", help="Directory path containing Terraform files")
     parser.add_argument(
         "-i",
