@@ -10,11 +10,14 @@ VERSION = "1.0.0"  # Define the version constant
 
 class TFAuthoritativeScanner:
     authoritative_resources = [
+        "google_project_iam_policy",
         "google_project_iam_binding",
         "google_folder_iam_binding",
         "google_organization_iam_binding",
         "google_folder_iam_policy",
         "google_organization_iam_policy",
+        "google_storage_bucket_iam_policy",
+        "google_storage_bucket_iam_binding",
     ]
 
     # less interesting / not verified authoritative resources
