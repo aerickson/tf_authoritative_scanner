@@ -96,15 +96,6 @@ def test_check_file_for_authoritative_resources(temp_tf_file):
     assert len(authoritative_lines) > 0
 
 
-# def test_check_directory_for_authoritative_resources(temp_tf_dir):
-#     scanner = TFAuthoritativeScanner(temp_tf_dir, include_dotdirs=False)
-#     all_authoritative_lines, total_files = (
-#         scanner.check_directory_for_authoritative_resources()
-#     )
-#     assert total_files == 1
-#     assert len(all_authoritative_lines) > 0
-
-
 def test_check_directory_for_authoritative_resources(temp_tf_dir):
     scanner = TFAuthoritativeScanner(temp_tf_dir, include_dotdirs=False)
     all_authoritative_lines, total_files, _ = (
@@ -163,7 +154,7 @@ def test_exception_comment_same_line(temp_tf_file_with_exception_same_line):
     scanner = TFAuthoritativeScanner(
         temp_tf_file_with_exception_same_line, include_dotdirs=False
     )
-    authoritative_lines = scanner.check_file_for_authoritative_resources(
+    authoritative_lines, _ = scanner.check_file_for_authoritative_resources(
         temp_tf_file_with_exception_same_line
     )
     assert len(authoritative_lines) == 0
@@ -173,7 +164,7 @@ def test_exception_comment_previous_line(temp_tf_file_with_exception_previous_li
     scanner = TFAuthoritativeScanner(
         temp_tf_file_with_exception_previous_line, include_dotdirs=False
     )
-    authoritative_lines = scanner.check_file_for_authoritative_resources(
+    authoritative_lines, _ = scanner.check_file_for_authoritative_resources(
         temp_tf_file_with_exception_previous_line
     )
     assert len(authoritative_lines) == 0
