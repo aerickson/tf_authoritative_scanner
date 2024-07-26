@@ -13,6 +13,8 @@ class TFAuthoritativeScanner:
         "google_project_iam_binding",
         "google_folder_iam_binding",
         "google_organization_iam_binding",
+        "google_folder_iam_policy",
+        "google_organization_iam_policy",
     ]
 
     # less interesting / not verified authoritative resources
@@ -24,9 +26,7 @@ class TFAuthoritativeScanner:
         "google_compute_firewall",
         "google_compute_subnetwork",
         "google_folder_iam_member",
-        "google_folder_iam_policy",
         "google_organization_iam_member",
-        "google_organization_iam_policy",
         "google_container_cluster",
         "google_pubsub_topic",
         "google_cloud_run_service",
