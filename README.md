@@ -6,6 +6,8 @@
 
 If such resources are found, it reports their file paths and line numbers, and exits with a non-zero status unless the lines are marked with an exception comment (`# terraform_authoritative_scanner_ok` inline or on the line before).
 
+Currently focuses on Google GCP Terraform authoritative resources (PRs welcome).
+
 ## Background
 
 Authoritative Terraform resources are extremely dangerous because they will remove all non-Terraform managed resources and not mention it in `terraform plan` output.
