@@ -34,16 +34,17 @@ class TFAuthoritativeScanner:
 
     exception_comment_pattern = re.compile(r"#\s*terraform_authoritative_scanner_ok")
 
-    def __init__(self, directory, include_dotdirs, verbose=False):
+    def __init__(self, directory, include_dotdirs, verbosity=0):
         self.directory = directory
         self.include_dotdirs = include_dotdirs
-        self.verbose = verbose
+        self.verbosity = verbosity
 
     def check_file_for_authoritative_resources(self, file_path):
         with open(file_path, "r") as file:
             lines = file.readlines()
 
         authoritative_lines = []
+        non_authoritative = True
         previous_line = ""
         for line_number, line in enumerate(lines, start=1):
             stripped_line = line.strip()
@@ -57,12 +58,15 @@ class TFAuthoritativeScanner:
                     line
                 ) and not self.exception_comment_pattern.search(previous_line):
                     authoritative_lines.append((line_number, stripped_line))
+                    non_authoritative = False
+                    break  # No need to keep checking, as the file is authoritative
             previous_line = stripped_line
 
-        return authoritative_lines
+        return authoritative_lines, non_authoritative
 
     def check_directory_for_authoritative_resources(self):
         all_authoritative_lines = []
+        non_authoritative_files = []
         total_files = 0
         for root, dirs, files in os.walk(self.directory):
             if not self.include_dotdirs:
@@ -72,19 +76,25 @@ class TFAuthoritativeScanner:
                 if file.endswith(".tf"):
                     total_files += 1
                     file_path = os.path.join(root, file)
-                    authoritative_lines = self.check_file_for_authoritative_resources(
-                        file_path
+                    authoritative_lines, non_authoritative = (
+                        self.check_file_for_authoritative_resources(file_path)
                     )
                     if authoritative_lines:
                         all_authoritative_lines.append((file_path, authoritative_lines))
-        return all_authoritative_lines, total_files
+                    if self.verbosity >= 2 and non_authoritative:
+                        non_authoritative_files.append(file_path)
+
+        return all_authoritative_lines, total_files, non_authoritative_files
 
     def run(self):
-        all_authoritative_lines, total_files = (
+        all_authoritative_lines, total_files, non_authoritative_files = (
             self.check_directory_for_authoritative_resources()
         )
+        if self.verbosity >= 2:
+            for file_path in non_authoritative_files:
+                print(f"non-authoritative: {file_path}")
         if all_authoritative_lines:
-            if self.verbose:
+            if self.verbosity >= 1:
                 for file_path, lines in all_authoritative_lines:
                     for line_number, line in lines:
                         print(f"AUTHORITATIVE: {file_path}:{line_number}: {line}")
@@ -121,8 +131,9 @@ def main():
     parser.add_argument(
         "-v",
         "--verbose",
-        action="store_true",
-        help="Show detailed output of authoritative resource lines",
+        action="count",
+        default=0,
+        help="Increase verbosity level (can be used multiple times)",
     )
     args = parser.parse_args()
 
