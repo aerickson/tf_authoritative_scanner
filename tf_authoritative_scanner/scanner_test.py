@@ -2,7 +2,7 @@ import os
 import pytest
 import tempfile
 import shutil
-from check_authoritative_resources import TFAuthoritativeScanner
+from tf_authoritative_scanner.scanner import TFAuthoritativeScanner
 
 class TestTFAuthoritativeScanner:
     def setup_method(self):
