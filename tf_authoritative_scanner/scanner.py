@@ -33,9 +33,10 @@ class TFAuthoritativeScanner:
 
     exception_comment_pattern = re.compile(r"#\s*terraform_authoritative_scanner_ok")
 
-    def __init__(self, directory, include_dotdirs):
+    def __init__(self, directory, include_dotdirs, verbose=False):
         self.directory = directory
         self.include_dotdirs = include_dotdirs
+        self.verbose = verbose
 
     def check_file_for_authoritative_resources(self, file_path):
         with open(file_path, 'r') as file:
@@ -59,37 +60,50 @@ class TFAuthoritativeScanner:
 
     def check_directory_for_authoritative_resources(self):
         all_authoritative_lines = []
+        total_files = 0
         for root, dirs, files in os.walk(self.directory):
             if not self.include_dotdirs:
                 # Exclude directories starting with '.'
                 dirs[:] = [d for d in dirs if not d.startswith('.')]
             for file in files:
                 if file.endswith(".tf"):
+                    total_files += 1
                     file_path = os.path.join(root, file)
                     authoritative_lines = self.check_file_for_authoritative_resources(file_path)
                     if authoritative_lines:
                         all_authoritative_lines.append((file_path, authoritative_lines))
-        return all_authoritative_lines
+        return all_authoritative_lines, total_files
 
     def run(self):
-        all_authoritative_lines = self.check_directory_for_authoritative_resources()
+        all_authoritative_lines, total_files = self.check_directory_for_authoritative_resources()
         if all_authoritative_lines:
-            for file_path, lines in all_authoritative_lines:
-                for line_number, line in lines:
-                    print(f"Authoritative resource found in {file_path} at line {line_number}: {line}")
+            if self.verbose:
+                for file_path, lines in all_authoritative_lines:
+                    for line_number, line in lines:
+                        print(f"Authoritative resource found in {file_path} at line {line_number}: {line}")
+            else:
+                authoritative_files = len(all_authoritative_lines)
+                print(f"{authoritative_files} of {total_files} scanned files are authoritative.")
             sys.exit(1)
         else:
-            print("No authoritative resources found.")
+            # print(f"No authoritative resources found in {total_files} scanned files.")
+            authoritative_files = len(all_authoritative_lines)
+            print(f"{authoritative_files} of {total_files} scanned files are authoritative.")
             sys.exit(0)
 
 def main():
     parser = argparse.ArgumentParser(description="Static analysis of Terraform files for authoritative GCP resources.")
     parser.add_argument("directory", help="Directory path containing Terraform files")
     parser.add_argument("-i", "--include-dotdirs", action="store_true", help="Include directories starting with a dot")
-    parser.add_argument("-v", "--version", action="version", version=f"%(prog)s {VERSION}", help="Show program's version number and exit")
+    parser.add_argument("--version", action="version", version=f"%(prog)s {VERSION}", help="Show program's version number and exit")
+    parser.add_argument("-v", "--verbose", action="store_true", help="Show detailed output of authoritative resource lines")
     args = parser.parse_args()
 
-    scanner = TFAuthoritativeScanner(args.directory, args.include_dotdirs)
+    if not os.path.exists(args.directory):
+        print(f"Error: The directory {args.directory} does not exist.", file=sys.stderr)
+        sys.exit(1)
+
+    scanner = TFAuthoritativeScanner(args.directory, args.include_dotdirs, args.verbose)
     scanner.run()
 
 if __name__ == "__main__":
