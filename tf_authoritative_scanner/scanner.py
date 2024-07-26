@@ -90,14 +90,13 @@ class TFAuthoritativeScanner:
         all_authoritative_lines, total_files, non_authoritative_files = (
             self.check_directory_for_authoritative_resources()
         )
-        if self.verbosity >= 2:
+        if self.verbosity:
             for file_path in non_authoritative_files:
                 print(f"OK: {file_path}")
         if all_authoritative_lines:
-            if self.verbosity >= 1:
-                for file_path, lines in all_authoritative_lines:
-                    for line_number, line in lines:
-                        print(f"AUTHORITATIVE: {file_path}:{line_number}: {line}")
+            for file_path, lines in all_authoritative_lines:
+                for line_number, line in lines:
+                    print(f"AUTHORITATIVE: {file_path}:{line_number}: {line}")
             authoritative_files = len(all_authoritative_lines)
             print(f"ERROR: {authoritative_files} of {total_files} scanned files are authoritative.")
             sys.exit(1)
