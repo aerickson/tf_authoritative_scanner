@@ -31,7 +31,7 @@ class TFAuthoritativeScanner:
         "google_cloud_run_service"
     ]
 
-    exception_comment_pattern = re.compile(r"#\\s*terraform_authoritative_scanner_ok")
+    exception_comment_pattern = re.compile(r"#\s*terraform_authoritative_scanner_ok")
 
     def __init__(self, directory, include_dotdirs):
         self.directory = directory
