@@ -2,7 +2,7 @@ import os
 import pytest
 import tempfile
 import subprocess
-from scanner import TFAuthoritativeScanner
+from tf_authoritative_scanner.scanner import TFAuthoritativeScanner
 
 @pytest.fixture
 def temp_tf_file():
@@ -91,7 +91,7 @@ def test_run_verbose(temp_tf_dir, capsys):
     with pytest.raises(SystemExit):
         scanner.run()
     captured = capsys.readouterr()
-    assert "Authoritative resource found" in captured.out
+    assert "AUTHORITATIVE" in captured.out
 
 def test_run_non_verbose(temp_tf_dir, capsys):
     scanner = TFAuthoritativeScanner(temp_tf_dir, include_dotdirs=False, verbose=False)

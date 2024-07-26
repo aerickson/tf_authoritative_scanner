@@ -80,14 +80,13 @@ class TFAuthoritativeScanner:
             if self.verbose:
                 for file_path, lines in all_authoritative_lines:
                     for line_number, line in lines:
-                        print(f"Authoritative resource found in {file_path} at line {line_number}: {line}")
-            else:
-                authoritative_files = len(all_authoritative_lines)
-                print(f"{authoritative_files} of {total_files} scanned files are authoritative.")
+                        print(f"AUTHORITATIVE: {file_path}:{line_number}: {line}")
+            authoritative_files = len(all_authoritative_lines)
+            print(f"ERROR: {authoritative_files} of {total_files} scanned files are authoritative.")
             sys.exit(1)
         else:
             authoritative_files = len(all_authoritative_lines)
-            print(f"{authoritative_files} of {total_files} scanned files are authoritative.")
+            print(f"PASS: {authoritative_files} of {total_files} scanned files are authoritative.")
             sys.exit(0)
 
 def main():
