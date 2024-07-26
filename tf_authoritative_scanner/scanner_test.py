@@ -45,7 +45,7 @@ class TestTFAuthoritativeScanner:
         result = scanner.check_directory_for_authoritative_resources()
         assert len(result) == 1
 
-    def test_authoritative_resources_with_exception(self):
+    def test_authoritative_resources_with_exception_inline(self):
         # Create a .tf file with an authoritative resource and an exception comment
         self.create_file('main.tf', """
         resource "google_project_iam_binding" "binding" { # terraform_authoritative_scanner_ok
@@ -58,6 +58,21 @@ class TestTFAuthoritativeScanner:
         scanner = TFAuthoritativeScanner(self.test_dir, include_dotdirs=False)
         result = scanner.check_directory_for_authoritative_resources()
         assert len(result) == 0
+
+    def test_authoritative_resources_with_exception_previous_line(self):
+        # Create a .tf file with an authoritative resource and an exception comment
+        self.create_file('main.tf', """
+        # terraform_authoritative_scanner_ok
+        resource "google_project_iam_binding" "binding" {
+          project = "my-project"
+          role    = "roles/viewer"
+          members = ["user:example@example.com"]
+        }
+        """)
+        
+        scanner = TFAuthoritativeScanner(self.test_dir, include_dotdirs=False)
+        result = scanner.check_directory_for_authoritative_resources()
+        assert len(result) == 0        
 
     def test_include_dotdirs(self):
         # Create a .tf file inside a dot directory

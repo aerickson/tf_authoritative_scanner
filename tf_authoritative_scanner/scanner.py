@@ -42,15 +42,18 @@ class TFAuthoritativeScanner:
             lines = file.readlines()
 
         authoritative_lines = []
+        previous_line = ""
         for line_number, line in enumerate(lines, start=1):
             stripped_line = line.strip()
             # Ignore comment lines
             if stripped_line.startswith("#"):
+                previous_line = stripped_line
                 continue
             # Check if the line contains any authoritative resource and is not excepted
             if any(resource in line for resource in self.authoritative_resources):
-                if not self.exception_comment_pattern.search(line):
+                if not self.exception_comment_pattern.search(line) and not self.exception_comment_pattern.search(previous_line):
                     authoritative_lines.append((line_number, stripped_line))
+            previous_line = stripped_line
 
         return authoritative_lines
 
