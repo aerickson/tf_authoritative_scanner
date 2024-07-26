@@ -81,7 +81,7 @@ class TFAuthoritativeScanner:
                     authoritative_lines, non_authoritative = self.check_file_for_authoritative_resources(file_path)
                     if authoritative_lines:
                         all_authoritative_lines.append((file_path, authoritative_lines))
-                    if self.verbosity >= 2 and non_authoritative:
+                    if non_authoritative:
                         non_authoritative_files.append(file_path)
 
         return all_authoritative_lines, total_files, non_authoritative_files
