@@ -2,4 +2,12 @@
 
 ## Overview
 
-The TFAuthoritativeScanner tool performs static analysis on Terraform files to detect the presence of specific authoritative GCP resources. It scans the specified directory (and optionally includes hidden directories) for Terraform configuration files (.tf) and identifies lines containing these authoritative resources. If such resources are found, it reports their file paths and line numbers, and exits with a non-zero status unless the lines are marked with an exception comment (# terraform_authoritative_scanner_ok). This helps ensure that the configuration complies with specified infrastructure management policies.
+`tfas` performs static analysis on Terraform files to detect the presence of specific authoritative GCP resources. It scans a specified directory (and optionally includes hidden directories) for Terraform configuration files (.tf) and identifies lines containing these authoritative resources.
+
+If such resources are found, it reports their file paths and line numbers, and exits with a non-zero status unless the lines are marked with an exception comment (`# terraform_authoritative_scanner_ok` inline or on the line before).
+
+## Background
+
+Authoritative Terraform resources are extremely dangerous because they will remove all non-Terraform managed resources and not mention it in `terraform plan` output.
+
+Authoritative Terraform resources should be used when setting up new infrastructure, but when managing inherited infrastructure it's extremely dangerous.
