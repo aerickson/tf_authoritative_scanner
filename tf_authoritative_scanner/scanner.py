@@ -62,7 +62,6 @@ class TFAuthoritativeScanner:
                 ):
                     authoritative_lines.append((line_number, stripped_line))
                     non_authoritative = False
-                    break  # No need to keep checking, as the file is authoritative
             previous_line = stripped_line
 
         return authoritative_lines, non_authoritative
