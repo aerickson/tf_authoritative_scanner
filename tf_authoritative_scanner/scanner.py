@@ -5,6 +5,8 @@ import re
 import sys
 import argparse
 
+VERSION = "1.0.0"  # Define the version constant
+
 class TFAuthoritativeScanner:
     authoritative_resources = [
         "google_project_iam_binding",
@@ -12,24 +14,24 @@ class TFAuthoritativeScanner:
         "google_organization_iam_binding"
     ]
 
-    # Define other authoritative GCP resources (commented out for reference)
-    # "google_compute_instance",
-    # "google_storage_bucket",
-    # "google_sql_database_instance",
-    # "google_vpc_network",
-    # "google_compute_firewall",
-    # "google_compute_subnetwork",
-    # "google_project_iam_member",
-    # "google_project_iam_policy",
-    # "google_folder_iam_member",
-    # "google_folder_iam_policy",
-    # "google_organization_iam_member",
-    # "google_organization_iam_policy",
-    # "google_container_cluster",
-    # "google_pubsub_topic",
-    # "google_cloud_run_service"
+    # less interesting / not verified authoritative resources
+    _additional_resources = [
+        "google_compute_instance",
+        "google_storage_bucket",
+        "google_sql_database_instance",
+        "google_vpc_network",
+        "google_compute_firewall",
+        "google_compute_subnetwork",
+        "google_folder_iam_member",
+        "google_folder_iam_policy",
+        "google_organization_iam_member",
+        "google_organization_iam_policy",
+        "google_container_cluster",
+        "google_pubsub_topic",
+        "google_cloud_run_service"
+    ]
 
-    exception_comment_pattern = re.compile(r"#\s*terraform_authoritative_scanner_ok")
+    exception_comment_pattern = re.compile(r"#\\s*terraform_authoritative_scanner_ok")
 
     def __init__(self, directory, include_dotdirs):
         self.directory = directory
@@ -81,6 +83,7 @@ def main():
     parser = argparse.ArgumentParser(description="Static analysis of Terraform files for authoritative GCP resources.")
     parser.add_argument("directory", help="Directory path containing Terraform files")
     parser.add_argument("-i", "--include-dotdirs", action="store_true", help="Include directories starting with a dot")
+    parser.add_argument("-v", "--version", action="version", version=f"%(prog)s {VERSION}", help="Show program's version number and exit")
     args = parser.parse_args()
 
     scanner = TFAuthoritativeScanner(args.directory, args.include_dotdirs)
