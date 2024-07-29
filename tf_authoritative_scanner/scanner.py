@@ -112,14 +112,27 @@ class TFAuthoritativeScanner:
         all_authoritative_lines = result["all_authoritative_lines"]
         total_files = result["total_files"]
         non_authoritative_files = result["non_authoritative_files"]
+        excluded_files = result["all_excluded_lines"]
+        # TODO: would be nicer to have a data structure keyed on file_path vs just put into different arrrays
+        #   - ordering of output messages could be a bit odd (out of normal order)
         if self.verbosity:
-            for file_path in non_authoritative_files:
+            for item in excluded_files:
+                file_path = item["file_path"]
+                lines = item["excepted_lines"]
+                for item in lines:
+                    line_number = item["line_number"]
+                    line = item["line"]
+                    print(f"EXCLUDED: {file_path}:{line_number}: {line}")
+            for item in non_authoritative_files:
+                file_path = item["file_path"]
                 print(f"OK: {file_path}")
         if all_authoritative_lines:
             for item in all_authoritative_lines:
                 file_path = item["file_path"]
                 lines = item["authoritative_lines"]
-                for line_number, line in lines:
+                for item in lines:
+                    line_number = item["line_number"]
+                    line = item["line"]
                     print(f"AUTHORITATIVE: {file_path}:{line_number}: {line}")
             authoritative_files = len(all_authoritative_lines)
             print(f"FAIL: {authoritative_files} of {total_files} scanned files are authoritative.")
