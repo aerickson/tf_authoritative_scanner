@@ -14,8 +14,16 @@ Authoritative Terraform resources are extremely dangerous because they will remo
 
 Authoritative Terraform resources should be used when setting up new infrastructure, but when managing inherited infrastructure it's extremely dangerous.
 
-# TODO
+## Known Issues
 
+- resource names that have authoritative resource will alert
+  - use an exception comment for now
+
+## TODO
+
+- more advanced detection
+  - simple substring is used now, check for `resource "BLAH"` or `resource 'BLAH'`
+  - don't false trigger, see 'Known Issues' above
 - add an option to show the list of authoritative resources checked for
 - note what the exception comment required is
   -  `# terraform_authoritative_scanner_ok`

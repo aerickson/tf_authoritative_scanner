@@ -85,6 +85,21 @@ def temp_tf_file_with_exception_previous_line():
 
 
 @pytest.fixture
+def temp_tf_file_authoritative_resource_name_but_not_resource():
+    with tempfile.NamedTemporaryFile(suffix=".tf", delete=False) as temp_file:
+        temp_file.write(b"""
+        resource "non_authoritative" "google_deployment_accounts_compute_admin_google_project_iam_binding" {
+        project = "fxci-production-level3-workers"
+        role    = "roles/compute.admin"
+        member  = "serviceAccount:test3333"
+        }
+        """)
+        temp_file.close()
+        yield temp_file.name
+    os.remove(temp_file.name)
+
+
+@pytest.fixture
 def temp_non_authoritative_tf_file():
     with tempfile.NamedTemporaryFile(suffix=".tf", delete=False) as temp_file:
         temp_file.write(b"""
@@ -138,6 +153,19 @@ def test_run_non_verbosity(temp_tf_dir, capsys):
         scanner.run()
     captured = capsys.readouterr()
     assert "1 of 1 scanned files are authoritative" in captured.out
+
+
+def test_temp_tf_file_authoritative_resource_name_but_not_resource(
+    temp_tf_dir, temp_tf_file_authoritative_resource_name_but_not_resource
+):
+    scanner = TFAuthoritativeScanner(temp_tf_dir, include_dotdirs=False)
+    result = scanner.check_file_for_authoritative_resources(temp_tf_file_authoritative_resource_name_but_not_resource)
+    authoritative_lines = result["authoritative_lines"]
+    excepted_lines = result["excepted_lines"]
+    # see 'Known Issues' in README.md
+    #   - ideally this would be 0 authoritative lines and 1 excepted line
+    assert len(authoritative_lines) == 1
+    assert len(excepted_lines) == 0
 
 
 def test_run_verbose_level_2(temp_non_authoritative_tf_file, capsys):
