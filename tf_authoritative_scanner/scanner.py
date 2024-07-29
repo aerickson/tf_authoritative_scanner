@@ -38,8 +38,8 @@ class TFAuthoritativeScanner:
 
     exception_comment_pattern = re.compile(r"#\s*terraform_authoritative_scanner_ok")
 
-    def __init__(self, directory, include_dotdirs, verbosity=0):
-        self.directory = directory
+    def __init__(self, file_or_directory, include_dotdirs, verbosity=0):
+        self.file_or_directory = file_or_directory
         self.include_dotdirs = include_dotdirs
         self.verbosity = verbosity
 
@@ -81,7 +81,7 @@ class TFAuthoritativeScanner:
         non_authoritative_files = []
         all_excluded_lines = []
         total_files = 0
-        for root, dirs, files in os.walk(self.directory):
+        for root, dirs, files in os.walk(self.file_or_directory):
             if not self.include_dotdirs:
                 # Exclude directories starting with '.'
                 dirs[:] = [d for d in dirs if not d.startswith(".")]
@@ -112,44 +112,48 @@ class TFAuthoritativeScanner:
         }
 
     def run(self):
-        result = self.check_directory_for_authoritative_resources()
-        all_authoritative_lines = result["all_authoritative_lines"]
-        total_files = result["total_files"]
-        non_authoritative_files = result["non_authoritative_files"]
-        excluded_files = result["all_excluded_lines"]
-        # TODO: would be nicer to have a data structure keyed on file_path vs just put into different arrrays
-        #   - ordering of output messages could be a bit odd (out of normal order)
-        if self.verbosity:
-            for item in excluded_files:
-                file_path = item["file_path"]
-                lines = item["excepted_lines"]
-                for item in lines:
-                    line_number = item["line_number"]
-                    line = item["line"]
-                    print(f"EXCLUDED: {file_path}:{line_number}: {line}")
-            for item in non_authoritative_files:
-                file_path = item["file_path"]
-                print(f"OK: {file_path}")
-        if all_authoritative_lines:
-            for item in all_authoritative_lines:
-                file_path = item["file_path"]
-                lines = item["authoritative_lines"]
-                for item in lines:
-                    line_number = item["line_number"]
-                    line = item["line"]
-                    print(f"AUTHORITATIVE: {file_path}:{line_number}: {line}")
-            authoritative_files = len(all_authoritative_lines)
-            print(f"FAIL: {authoritative_files} of {total_files} scanned files are authoritative.")
-            sys.exit(1)
+        if os.path.isdir(self.file_or_directory):
+            result = self.check_directory_for_authoritative_resources()
+            all_authoritative_lines = result["all_authoritative_lines"]
+            total_files = result["total_files"]
+            non_authoritative_files = result["non_authoritative_files"]
+            excluded_files = result["all_excluded_lines"]
+            # TODO: would be nicer to have a data structure keyed on file_path vs just put into different arrrays
+            #   - ordering of output messages could be a bit odd (out of normal order)
+            if self.verbosity:
+                for item in excluded_files:
+                    file_path = item["file_path"]
+                    lines = item["excepted_lines"]
+                    for item in lines:
+                        line_number = item["line_number"]
+                        line = item["line"]
+                        print(f"EXCLUDED: {file_path}:{line_number}: {line}")
+                for item in non_authoritative_files:
+                    file_path = item["file_path"]
+                    print(f"OK: {file_path}")
+            if all_authoritative_lines:
+                for item in all_authoritative_lines:
+                    file_path = item["file_path"]
+                    lines = item["authoritative_lines"]
+                    for item in lines:
+                        line_number = item["line_number"]
+                        line = item["line"]
+                        print(f"AUTHORITATIVE: {file_path}:{line_number}: {line}")
+                authoritative_files = len(all_authoritative_lines)
+                print(f"FAIL: {authoritative_files} of {total_files} scanned files are authoritative.")
+                sys.exit(1)
+            else:
+                authoritative_files = len(all_authoritative_lines)
+                print(f"PASS: {authoritative_files} of {total_files} scanned files are authoritative.")
+                sys.exit(0)
         else:
-            authoritative_files = len(all_authoritative_lines)
-            print(f"PASS: {authoritative_files} of {total_files} scanned files are authoritative.")
-            sys.exit(0)
+            # a file was given
+            raise SystemExit("Error: File mode doesn't work yet.")
 
 
 def main():
     parser = argparse.ArgumentParser(description="Static analysis of Terraform files for authoritative GCP resources.")
-    parser.add_argument("directory", help="Directory path containing Terraform files")
+    parser.add_argument("file_or_directory", help="the Terraform file or directory to scan")
     parser.add_argument(
         "-i",
         "--include-dotdirs",
@@ -171,11 +175,13 @@ def main():
     )
     args = parser.parse_args()
 
-    if not os.path.exists(args.directory):
-        print(f"Error: The directory {args.directory} does not exist.", file=sys.stderr)
+    # check if args.directory is a file, if it is, set args.directory to the parent directory
+
+    if not os.path.exists(args.file_or_directory):
+        print(f"Error: The directory {args.file_or_directory} does not exist.", file=sys.stderr)
         sys.exit(1)
 
-    scanner = TFAuthoritativeScanner(args.directory, args.include_dotdirs, args.verbose)
+    scanner = TFAuthoritativeScanner(args.file_or_directory, args.include_dotdirs, args.verbose)
     scanner.run()
 
 
