@@ -152,7 +152,9 @@ def test_exception_comment_same_line(temp_tf_file_with_exception_same_line):
     scanner = TFAuthoritativeScanner(temp_tf_file_with_exception_same_line, include_dotdirs=False)
     result = scanner.check_file_for_authoritative_resources(temp_tf_file_with_exception_same_line)
     authoritative_lines = result["authoritative_lines"]
+    excepted_lines = result["excepted_lines"]
     assert len(authoritative_lines) == 0
+    assert len(excepted_lines) == 1
 
 
 def test_exception_comment_previous_line(temp_tf_file_with_exception_previous_line):
@@ -160,7 +162,9 @@ def test_exception_comment_previous_line(temp_tf_file_with_exception_previous_li
     result = scanner.check_file_for_authoritative_resources(temp_tf_file_with_exception_previous_line)
     authoritative_lines = result["authoritative_lines"]
     _non_authoritative = result["non_authoritative"]
+    excepted_lines = result["excepted_lines"]
     assert len(authoritative_lines) == 0
+    assert len(excepted_lines) == 1
 
 
 def test_main_function(temp_tf_dir):
