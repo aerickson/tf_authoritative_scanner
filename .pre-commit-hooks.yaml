@@ -1,0 +1,10 @@
+- id: tfas
+  name: tfas
+  description: "Run 'tfas' for authoritative Terraform module linting"
+  entry: tfas
+  language: python
+  files: .tf$
+  args: []
+  require_serial: true
+  additional_dependencies: []
+  minimum_pre_commit_version: "2.9.2"
