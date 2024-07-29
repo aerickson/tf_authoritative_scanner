@@ -35,6 +35,15 @@ def temp_tf_dir(temp_tf_file):
                 "user:viewer@example.com",
             ]
         }
+
+        # terraform_authoritative_scanner_ok
+        resource "google_project_iam_binding" "binding" {
+            project = "my-project"
+            role    = "roles/viewer"
+            members = [
+                "user:viewer@example.com",
+            ]
+        }
         """)
     yield temp_dir.name
     temp_dir.cleanup()
@@ -101,10 +110,12 @@ def test_check_directory_for_authoritative_resources(temp_tf_dir):
     result = scanner.check_directory_for_authoritative_resources()
     all_authoritative_lines = result.get("all_authoritative_lines")
     non_authoritative_files = result.get("non_authoritative_files")
+    excepted_lines = result.get("all_excluded_lines")
     total_files = len(all_authoritative_lines) + len(non_authoritative_files)
 
     assert total_files == 1
     assert len(all_authoritative_lines) > 0
+    assert len(excepted_lines) == 1
 
 
 def test_directory_not_exists():

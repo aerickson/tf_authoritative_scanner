@@ -77,7 +77,7 @@ class TFAuthoritativeScanner:
     def check_directory_for_authoritative_resources(self):
         all_authoritative_lines = []
         non_authoritative_files = []
-        result = {"all_authoritative_lines": [], "non_authoritative_files": []}
+        all_excluded_lines = []
         total_files = 0
         for root, dirs, files in os.walk(self.directory):
             if not self.include_dotdirs:
@@ -90,14 +90,18 @@ class TFAuthoritativeScanner:
                     result = self.check_file_for_authoritative_resources(file_path)
                     authoritative_lines = result["authoritative_lines"]
                     non_authoritative = result["non_authoritative"]
+                    excepted_lines = result["excepted_lines"]
                     if authoritative_lines:
                         all_authoritative_lines.append(
                             {"file_path": file_path, "authoritative_lines": authoritative_lines}
                         )
+                    if excepted_lines:
+                        all_excluded_lines.append({"file_path": file_path, "excepted_lines": excepted_lines})
                     if non_authoritative:
                         non_authoritative_files.append({"file_path": file_path})
 
         return {
+            "all_excluded_lines": all_excluded_lines,
             "all_authoritative_lines": all_authoritative_lines,
             "total_files": total_files,
             "non_authoritative_files": non_authoritative_files,
