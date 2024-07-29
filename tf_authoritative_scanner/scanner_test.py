@@ -98,7 +98,11 @@ def test_check_file_for_authoritative_resources(temp_tf_file):
 
 def test_check_directory_for_authoritative_resources(temp_tf_dir):
     scanner = TFAuthoritativeScanner(temp_tf_dir, include_dotdirs=False)
-    all_authoritative_lines, total_files, _ = scanner.check_directory_for_authoritative_resources()
+    result = scanner.check_directory_for_authoritative_resources()
+    all_authoritative_lines = result.get("all_authoritative_lines")
+    non_authoritative_files = result.get("non_authoritative_files")
+    total_files = len(all_authoritative_lines) + len(non_authoritative_files)
+
     assert total_files == 1
     assert len(all_authoritative_lines) > 0
 
@@ -146,13 +150,16 @@ def test_run_verbose_level_2(temp_non_authoritative_tf_file, capsys):
 
 def test_exception_comment_same_line(temp_tf_file_with_exception_same_line):
     scanner = TFAuthoritativeScanner(temp_tf_file_with_exception_same_line, include_dotdirs=False)
-    authoritative_lines, _ = scanner.check_file_for_authoritative_resources(temp_tf_file_with_exception_same_line)
+    result = scanner.check_file_for_authoritative_resources(temp_tf_file_with_exception_same_line)
+    authoritative_lines = result["authoritative_lines"]
     assert len(authoritative_lines) == 0
 
 
 def test_exception_comment_previous_line(temp_tf_file_with_exception_previous_line):
     scanner = TFAuthoritativeScanner(temp_tf_file_with_exception_previous_line, include_dotdirs=False)
-    authoritative_lines, _ = scanner.check_file_for_authoritative_resources(temp_tf_file_with_exception_previous_line)
+    result = scanner.check_file_for_authoritative_resources(temp_tf_file_with_exception_previous_line)
+    authoritative_lines = result["authoritative_lines"]
+    _non_authoritative = result["non_authoritative"]
     assert len(authoritative_lines) == 0
 
 

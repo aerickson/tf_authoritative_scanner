@@ -61,15 +61,16 @@ class TFAuthoritativeScanner:
                 if not self.exception_comment_pattern.search(line) and not self.exception_comment_pattern.search(
                     previous_line
                 ):
-                    authoritative_lines.append((line_number, stripped_line))
+                    authoritative_lines.append({"line_number": line_number, "line": stripped_line})
                     non_authoritative = False
             previous_line = stripped_line
 
-        return authoritative_lines, non_authoritative
+        return {"authoritative_lines": authoritative_lines, "non_authoritative": non_authoritative}
 
     def check_directory_for_authoritative_resources(self):
         all_authoritative_lines = []
         non_authoritative_files = []
+        result = {"all_authoritative_lines": [], "non_authoritative_files": []}
         total_files = 0
         for root, dirs, files in os.walk(self.directory):
             if not self.include_dotdirs:
@@ -79,23 +80,34 @@ class TFAuthoritativeScanner:
                 if file.endswith(".tf"):
                     total_files += 1
                     file_path = os.path.join(root, file)
-                    authoritative_lines, non_authoritative = self.check_file_for_authoritative_resources(file_path)
+                    result = self.check_file_for_authoritative_resources(file_path)
+                    authoritative_lines = result["authoritative_lines"]
+                    non_authoritative = result["non_authoritative"]
                     if authoritative_lines:
-                        all_authoritative_lines.append((file_path, authoritative_lines))
+                        all_authoritative_lines.append(
+                            {"file_path": file_path, "authoritative_lines": authoritative_lines}
+                        )
                     if non_authoritative:
-                        non_authoritative_files.append(file_path)
+                        non_authoritative_files.append({"file_path": file_path})
 
-        return all_authoritative_lines, total_files, non_authoritative_files
+        return {
+            "all_authoritative_lines": all_authoritative_lines,
+            "total_files": total_files,
+            "non_authoritative_files": non_authoritative_files,
+        }
 
     def run(self):
-        all_authoritative_lines, total_files, non_authoritative_files = (
-            self.check_directory_for_authoritative_resources()
-        )
+        result = self.check_directory_for_authoritative_resources()
+        all_authoritative_lines = result["all_authoritative_lines"]
+        total_files = result["total_files"]
+        non_authoritative_files = result["non_authoritative_files"]
         if self.verbosity:
             for file_path in non_authoritative_files:
                 print(f"OK: {file_path}")
         if all_authoritative_lines:
-            for file_path, lines in all_authoritative_lines:
+            for item in all_authoritative_lines:
+                file_path = item["file_path"]
+                lines = item["authoritative_lines"]
                 for line_number, line in lines:
                     print(f"AUTHORITATIVE: {file_path}:{line_number}: {line}")
             authoritative_files = len(all_authoritative_lines)
