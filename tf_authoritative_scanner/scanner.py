@@ -5,7 +5,7 @@ import re
 import sys
 import argparse
 
-VERSION = "1.0.0"  # Define the version constant
+VERSION = "1.0.1"  # Define the version constant
 
 
 class TFAuthoritativeScanner:
