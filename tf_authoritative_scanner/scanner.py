@@ -48,6 +48,7 @@ class TFAuthoritativeScanner:
             lines = file.readlines()
 
         authoritative_lines = []
+        excepted_lines = []
         non_authoritative = True
         previous_line = ""
         for line_number, line in enumerate(lines, start=1):
@@ -63,9 +64,15 @@ class TFAuthoritativeScanner:
                 ):
                     authoritative_lines.append({"line_number": line_number, "line": stripped_line})
                     non_authoritative = False
+                else:
+                    excepted_lines.append({"line_number": line_number, "line": stripped_line})
             previous_line = stripped_line
 
-        return {"authoritative_lines": authoritative_lines, "non_authoritative": non_authoritative}
+        return {
+            "authoritative_lines": authoritative_lines,
+            "non_authoritative": non_authoritative,
+            "excepted_lines": excepted_lines,
+        }
 
     def check_directory_for_authoritative_resources(self):
         all_authoritative_lines = []
