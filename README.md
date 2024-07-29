@@ -25,8 +25,6 @@ Authoritative Terraform resources should be used when setting up new infrastruct
   - simple substring is used now, check for `resource "BLAH"` or `resource 'BLAH'`
   - don't false trigger, see 'Known Issues' above
 - add an option to show the list of authoritative resources checked for
-- note what the exception comment required is
-  -  `# terraform_authoritative_scanner_ok`
 
 ## Relevant Links
 
