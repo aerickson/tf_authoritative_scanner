@@ -69,9 +69,11 @@ class TFAuthoritativeScanner:
             previous_line = stripped_line
 
         return {
+            # arrays of dicts
             "authoritative_lines": authoritative_lines,
-            "non_authoritative": non_authoritative,
             "excepted_lines": excepted_lines,
+            # boolean
+            "non_authoritative": non_authoritative,
         }
 
     def check_directory_for_authoritative_resources(self):
@@ -101,10 +103,12 @@ class TFAuthoritativeScanner:
                         non_authoritative_files.append({"file_path": file_path})
 
         return {
+            # arrays of dicts
             "all_excluded_lines": all_excluded_lines,
             "all_authoritative_lines": all_authoritative_lines,
-            "total_files": total_files,
             "non_authoritative_files": non_authoritative_files,
+            # integer
+            "total_files": total_files,
         }
 
     def run(self):
