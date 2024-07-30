@@ -134,10 +134,11 @@ class TestTFAuthoritativeScanner:
         result = scanner.check_file_for_authoritative_resources(file)
         assert len(result["excepted_lines"]) == 1
 
-    def test_check_directory(self, scanner, temp_tf_dir):
+    def test_check_directory_fail(self, scanner, temp_tf_dir):
         r = scanner.check_paths_for_authoritative_resources([temp_tf_dir])
         assert r["files_scanned"] == 1
         assert len(r["results"]) == 1
+        assert r["results"][0]["authoritative"]
         assert len(r["results"][0]["authoritative_lines"]) == 1
         assert len(r["results"][0]["excepted_lines"]) == 1
 
@@ -145,6 +146,7 @@ class TestTFAuthoritativeScanner:
         r = scanner.check_paths_for_authoritative_resources([temp_non_authoritative_tf_file])
         assert r["files_scanned"] == 1
         assert len(r["results"]) == 1
+        assert not r["results"][0]["authoritative"]
         assert len(r["results"][0]["authoritative_lines"]) == 0
         assert len(r["results"][0]["excepted_lines"]) == 0
 
