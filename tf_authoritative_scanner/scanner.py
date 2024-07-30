@@ -158,9 +158,6 @@ def _get_version(rel_path):
         raise RuntimeError("Unable to find version string.")
 
 
-# version = get_version("mypackage/__init__.py")
-
-
 def main():
     parser = argparse.ArgumentParser(description="Static analysis of Terraform files for authoritative GCP resources.")
     parser.add_argument("paths", metavar="path", type=str, nargs="+", help="File or directory to scan")
