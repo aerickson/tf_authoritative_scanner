@@ -136,7 +136,7 @@ class TFAuthoritativeScanner:
             sys.exit(0)
 
 
-def verify_paths(paths):
+def _verify_paths(paths):
     for path in paths:
         if not os.path.exists(path):
             print(f"Error: The path '{path}' does not exist.")
@@ -167,7 +167,7 @@ def main():
     )
     args = parser.parse_args()
 
-    verify_paths(args.paths)
+    _verify_paths(args.paths)
     scanner = TFAuthoritativeScanner(args.include_dotdirs, args.verbose)
     scanner.run(args.paths)
 
