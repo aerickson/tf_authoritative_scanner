@@ -20,7 +20,7 @@ If you're working with existing infrastructure they should only be used once all
 
 ### Authoritative Resource Exceptions
 
-If you want to allow a specific usage of an authorized resource, add a comment line with `terraform_authoritative_scanner_ok` before the line or inline and `tfas` won't alert on it.
+If you want to allow a specific usage of an authorized resource, add a comment with `terraform_authoritative_scanner_ok` and `tfas` won't alert on it. The comment can be on the line before the authoritative resource or inline.
 
 ```bash
     # terraform_authoritative_scanner_ok
