@@ -5,7 +5,7 @@ import re
 import sys
 import argparse
 
-VERSION = "1.0.2"
+VERSION = "1.0.3"
 
 
 class TFAuthoritativeScanner:
@@ -111,12 +111,11 @@ class TFAuthoritativeScanner:
 
             if file_entry["authoritative"]:
                 authoritative_files_found += 1
-                if self.verbosity:
-                    authoritative_lines = file_entry["authoritative_lines"]
-                    for item in authoritative_lines:
-                        line_number = item["line_number"]
-                        line = item["line"]
-                        print(f"AUTHORITATIVE: {file_path}:{line_number}: {line}")
+                authoritative_lines = file_entry["authoritative_lines"]
+                for item in authoritative_lines:
+                    line_number = item["line_number"]
+                    line = item["line"]
+                    print(f"AUTHORITATIVE: {file_path}:{line_number}: {line}")
             elif file_entry["excepted_lines"]:
                 if self.verbosity:
                     excepted_lines = file_entry["excepted_lines"]
