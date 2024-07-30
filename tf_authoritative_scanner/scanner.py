@@ -4,8 +4,8 @@ import os
 import re
 import sys
 import argparse
-
-VERSION = "1.0.3"
+import codecs
+import os.path
 
 
 class TFAuthoritativeScanner:
@@ -142,6 +142,21 @@ def _verify_paths(paths):
             sys.exit(1)
 
 
+def _read(rel_path):
+    here = os.path.abspath(os.path.dirname(__file__))
+    with codecs.open(os.path.join(here, rel_path), "r") as fp:
+        return fp.read()
+
+
+def _get_version(rel_path):
+    for line in _read(rel_path).splitlines():
+        if line.startswith("__version__"):
+            delim = '"' if '"' in line else "'"
+            return line.split(delim)[1]
+    else:
+        raise RuntimeError("Unable to find version string.")
+
+
 def main():
     parser = argparse.ArgumentParser(description="Static analysis of Terraform files for authoritative GCP resources.")
     parser.add_argument("paths", metavar="path", type=str, nargs="+", help="File or directory to scan")
@@ -154,8 +169,7 @@ def main():
     parser.add_argument(
         "--version",
         action="version",
-        version=f"%(prog)s {VERSION}",
-        help="Show program's version number and exit",
+        version=_get_version("__init__.py"),
     )
     parser.add_argument(
         "-v",

@@ -19,7 +19,23 @@ Authoritative Terraform resources should be used when setting up new infrastruct
 - resource names that have authoritative resource will alert
   - use an exception comment for now
 
-## TODO
+## Development
+
+### Version Bumping
+
+```bash
+# poetry install via shell script
+pipx inject poetry poetry-bumpversion
+# poetry installed via pipx
+poetry self add poetry-bumpversion
+
+poetry version -h
+
+# increment minor version
+poetry version patch
+```
+
+### TODO
 
 - more advanced detection
   - simple substring is used now, check for `resource "BLAH"` or `resource 'BLAH'`
