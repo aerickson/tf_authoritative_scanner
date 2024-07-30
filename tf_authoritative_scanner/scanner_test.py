@@ -184,7 +184,9 @@ class TestTFAuthoritativeScanner:
     def test_main_directory_fail(self, temp_tf_dir):
         result = subprocess.run(["tfas", temp_tf_dir], capture_output=True, text=True)
         assert result.stderr == ""
-        assert result.stdout == "FAIL: 1 of 1 scanned files are authoritative.\n"
+        assert "FAIL: 1 of 1 scanned files are authoritative.\n" in result.stdout
+        # ensure that authoritative messages are emitted in non-verbose mode
+        assert "AUTHORITATIVE" in result.stdout
         assert result.returncode == 1
 
     def test_main_directory_ok(self, temp_non_authoritative_tf_file):
