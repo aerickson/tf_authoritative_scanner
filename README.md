@@ -2,17 +2,19 @@
 
 ## Overview
 
-`tfas` performs static analysis on Terraform files to detect the presence of specific authoritative GCP resources. It scans a specified directory (and optionally includes hidden directories) for Terraform configuration files (.tf) and identifies lines containing these authoritative resources.
+`tfas` performs static analysis on Terraform files to detect the presence of authoritative resources (currently only GCP Terraform resources, but pull requests welcome). It scans a specified directory (and optionally hidden directories - 3rd party modules) for Terraform configuration files (.tf) and identifies lines containing these authoritative resources.
 
 If such resources are found, it reports their file paths and line numbers, and exits with a non-zero status unless the lines are marked with an exception comment (`# terraform_authoritative_scanner_ok` inline or on the line before).
 
-Currently focuses on Google GCP Terraform authoritative resources (PRs welcome).
+## Background and Comments
 
-## Background
+Authoritative Terraform resources are extremely dangerous because:
+- they can and will remove non-Terraform managed resources
+- they won't mention actions in `terraform plan` output
 
-Authoritative Terraform resources are extremely dangerous because they will remove all non-Terraform managed resources and not mention it in `terraform plan` output.
+Authoritative Terraform resources should be used when setting up new infrastructure. It's desirable in this state to wipe out anything not in Terraform.
 
-Authoritative Terraform resources should be used when setting up new infrastructure, but when managing inherited infrastructure it's extremely dangerous.
+If you're working with existing infrastructure they should only be used once all infrastructure is being managed by Terraform.
 
 ## Usage
 
@@ -34,10 +36,15 @@ Stage the file then run `pre-commit autoupdate` to grab the latest release.
 #### Local Development
 
 ```
-poetry shell
-poetry install
-
-tfas
+$ poetry shell
+$ poetry install
+$ tfas
+powderdry  relops_infra_as_code git:(9d28089) ✗  ➜  tfas .
+AUTHORITATIVE: ~/git/terraform_repo/project_red/iam.tf:10: resource "google_project_iam_binding" "compute_admin" {
+AUTHORITATIVE: ~/git/terraform_repo/project_blue/iam.tf:10: resource "google_project_iam_binding" "compute_admin" {
+FAIL: 2 of 232 scanned files are authoritative.
+$ echo $?
+1
 ```
 
 #### Deployment
