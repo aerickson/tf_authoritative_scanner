@@ -14,6 +14,42 @@ Authoritative Terraform resources are extremely dangerous because they will remo
 
 Authoritative Terraform resources should be used when setting up new infrastructure, but when managing inherited infrastructure it's extremely dangerous.
 
+## Usage
+
+### Pre-Commit
+
+Add the following to your `.pre-commit-config.yaml` file.
+
+```
+- repo: https://github.com/aerickson/tf_authoritative_scanner.git
+  rev: v1.0.4
+  hooks:
+    - id: tfas
+```
+
+Stage the file then run `pre-commit autoupdate` to grab the latest release.
+
+### Interactively
+
+#### Local Development
+
+```
+poetry shell
+poetry install
+
+tfas
+```
+
+#### Deployment
+
+```
+poetry build
+# wheel will be in ./dist
+pip install xyz.wheel
+
+tfas
+```
+
 ## Known Issues
 
 - resource names that have authoritative resource will alert
@@ -37,6 +73,7 @@ poetry version patch
 
 ### TODO
 
+- publish to pypi
 - more advanced detection
   - simple substring is used now, check for `resource "BLAH"` or `resource 'BLAH'`
   - don't false trigger, see 'Known Issues' above
