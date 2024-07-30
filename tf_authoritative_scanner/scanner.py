@@ -7,8 +7,6 @@ import argparse
 import codecs
 import os.path
 
-VERSION = "1.0.3"
-
 
 class TFAuthoritativeScanner:
     authoritative_resources = [
