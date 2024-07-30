@@ -150,6 +150,26 @@ class TestTFAuthoritativeScanner:
         assert len(r["results"][0]["authoritative_lines"]) == 0
         assert len(r["results"][0]["excepted_lines"]) == 0
 
+    def test_check_known_issue(self, scanner, temp_tf_file_authoritative_resource_name_but_not_resource):
+        # see 'Known Issues' in README.md
+        #   - ideally this would be 0 authoritative lines and 1 excepted line
+        r = scanner.check_paths_for_authoritative_resources([temp_tf_file_authoritative_resource_name_but_not_resource])
+        assert r["files_scanned"] == 1
+        assert len(r["results"][0]["authoritative_lines"]) == 1
+        assert len(r["results"][0]["excepted_lines"]) == 0
+
+    def test_check_exclude_comment_inline(self, scanner, temp_tf_file_with_exception_same_line):
+        r = scanner.check_paths_for_authoritative_resources([temp_tf_file_with_exception_same_line])
+        assert r["files_scanned"] == 1
+        assert len(r["results"][0]["authoritative_lines"]) == 0
+        assert len(r["results"][0]["excepted_lines"]) == 1
+
+    def test_check_exclude_comment_previous_line(self, scanner, temp_tf_file_with_exception_previous_line):
+        r = scanner.check_paths_for_authoritative_resources([temp_tf_file_with_exception_previous_line])
+        assert r["files_scanned"] == 1
+        assert len(r["results"][0]["authoritative_lines"]) == 0
+        assert len(r["results"][0]["excepted_lines"]) == 1
+
     # main tests
 
     def test_main_function(self, temp_tf_dir):
