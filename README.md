@@ -2,21 +2,38 @@
 
 ## Overview
 
-`tfas` performs static analysis on Terraform files to detect the presence of specific authoritative GCP resources. It scans a specified directory (and optionally includes hidden directories) for Terraform configuration files (.tf) and identifies lines containing these authoritative resources.
+`tfas` performs static analysis on Terraform files to detect the presence of authoritative resources (currently only GCP Terraform resources, but pull requests welcome). It scans a specified directory (and optionally hidden directories to inspect modules) for Terraform configuration files (.tf) and identifies lines containing these authoritative resources.
 
-If such resources are found, it reports their file paths and line numbers, and exits with a non-zero status unless the lines are marked with an exception comment (`# terraform_authoritative_scanner_ok` inline or on the line before).
+### Background and Comments
 
-Currently focuses on Google GCP Terraform authoritative resources (PRs welcome).
+Authoritative Terraform resources are extremely dangerous because:
+- they can and will remove non-Terraform managed resources
+- they won't mention actions in `terraform plan` output
 
-## Background
+Authoritative Terraform resources should be used when setting up new infrastructure. It's desirable in this state to wipe out anything not in Terraform.
 
-Authoritative Terraform resources are extremely dangerous because they will remove all non-Terraform managed resources and not mention it in `terraform plan` output.
+If you're working with existing infrastructure they should only be used once all infrastructure is being managed by Terraform.
 
-Authoritative Terraform resources should be used when setting up new infrastructure, but when managing inherited infrastructure it's extremely dangerous.
+
 
 ## Usage
 
-### Pre-Commit
+### Authoritative Resource Exceptions
+
+If you want to allow a specific usage of an authorized resource, add a comment with `terraform_authoritative_scanner_ok` and `tfas` won't alert on it. The comment can be on the line before the authoritative resource or inline.
+
+```bash
+    # terraform_authoritative_scanner_ok
+    resource "google_project_iam_binding" "binding" {
+      ...
+    }
+
+    resource "google_project_iam_binding" "binding2" {  # terraform_authoritative_scanner_ok
+      ...
+    }
+```
+
+### Running via Pre-Commit
 
 Add the following to your `.pre-commit-config.yaml` file.
 
@@ -29,25 +46,32 @@ Add the following to your `.pre-commit-config.yaml` file.
 
 Stage the file then run `pre-commit autoupdate` to grab the latest release.
 
-### Interactively
+### Running Interactively
 
-#### Local Development
+#### Normal Usage
 
+```bash
+$ poetry build
+$ pip install dist/tf_authoritative_scanner-1.0.X-py3-none-any.whl
+
+$ tfas -h
+# help output
+...
+$ tfas ~/git/terraform_repo/
+AUTHORITATIVE: ~/git/terraform_repo/project_red/iam.tf:10: resource "google_project_iam_binding" "compute_admin" {
+AUTHORITATIVE: ~/git/terraform_repo/project_blue/iam.tf:10: resource "google_project_iam_binding" "compute_admin" {
+FAIL: 2 of 232 scanned files are authoritative.
+$ echo $?
+1
+$
 ```
-poetry shell
-poetry install
 
-tfas
-```
+#### Development
 
-#### Deployment
-
-```
-poetry build
-# wheel will be in ./dist
-pip install xyz.wheel
-
-tfas
+```bash
+$ poetry shell
+$ poetry install
+$ tfas
 ```
 
 ## Known Issues
