@@ -2,11 +2,9 @@
 
 ## Overview
 
-`tfas` performs static analysis on Terraform files to detect the presence of authoritative resources (currently only GCP Terraform resources, but pull requests welcome). It scans a specified directory (and optionally hidden directories to inspect 3rd party modules) for Terraform configuration files (.tf) and identifies lines containing these authoritative resources.
+`tfas` performs static analysis on Terraform files to detect the presence of authoritative resources (currently only GCP Terraform resources, but pull requests welcome). It scans a specified directory (and optionally hidden directories to inspect modules) for Terraform configuration files (.tf) and identifies lines containing these authoritative resources.
 
-If such resources are found, it reports their file paths and line numbers, and exits with a non-zero status unless the lines are marked with an exception comment (`# terraform_authoritative_scanner_ok` inline or on the line before).
-
-## Background and Comments
+### Background and Comments
 
 Authoritative Terraform resources are extremely dangerous because:
 - they can and will remove non-Terraform managed resources
@@ -16,9 +14,26 @@ Authoritative Terraform resources should be used when setting up new infrastruct
 
 If you're working with existing infrastructure they should only be used once all infrastructure is being managed by Terraform.
 
+
+
 ## Usage
 
-### Pre-Commit
+### Authoritative Resource Exceptions
+
+If you want to allow a specific usage of an authorized resource, add a comment line with `terraform_authoritative_scanner_ok` before the line or inline and `tfas` won't alert on it.
+
+```bash
+    # terraform_authoritative_scanner_ok
+    resource "google_project_iam_binding" "binding" {
+      ...
+    }
+
+    resource "google_project_iam_binding" "binding2" {  # terraform_authoritative_scanner_ok
+      ...
+    }
+```
+
+### Running via Pre-Commit
 
 Add the following to your `.pre-commit-config.yaml` file.
 
@@ -31,7 +46,7 @@ Add the following to your `.pre-commit-config.yaml` file.
 
 Stage the file then run `pre-commit autoupdate` to grab the latest release.
 
-### Interactively
+### Running Interactively
 
 #### Normal Usage
 
