@@ -5,7 +5,7 @@ import re
 import sys
 import argparse
 
-VERSION = "1.0.1"  # Define the version constant
+VERSION = "1.0.1"
 
 
 class TFAuthoritativeScanner:
@@ -107,11 +107,6 @@ class TFAuthoritativeScanner:
         total_files = call_result.get("files_scanned")
 
         for file_entry in results:
-            # print()
-            # import pprint
-            # pprint.pprint(file_entry)
-            # print()
-
             file_path = file_entry["file_path"]
 
             if file_entry["authoritative"]:
@@ -150,7 +145,6 @@ def verify_paths(paths):
 
 def main():
     parser = argparse.ArgumentParser(description="Static analysis of Terraform files for authoritative GCP resources.")
-    # parser.add_argument("paths", nargs='+', metavar="path", help="File or directory to scan", type=lambda x: is_valid_file(parser, x))
     parser.add_argument("paths", metavar="path", type=str, nargs="+", help="File or directory to scan")
     parser.add_argument(
         "-i",
