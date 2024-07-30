@@ -141,6 +141,15 @@ class TestTFAuthoritativeScanner:
         assert len(r["results"][0]["authoritative_lines"]) == 1
         assert len(r["results"][0]["excepted_lines"]) == 1
 
+    def test_check_directory_ok(self, scanner, temp_non_authoritative_tf_file):
+        r = scanner.check_paths_for_authoritative_resources([temp_non_authoritative_tf_file])
+        assert r["files_scanned"] == 1
+        assert len(r["results"]) == 1
+        assert len(r["results"][0]["authoritative_lines"]) == 0
+        assert len(r["results"][0]["excepted_lines"]) == 0
+
+    # main tests
+
     def test_main_function(self, temp_tf_dir):
         result = subprocess.run(["tfas", temp_tf_dir], capture_output=True, text=True)
         assert "1 of 1 scanned files are authoritative" in result.stdout
@@ -150,13 +159,24 @@ class TestTFAuthoritativeScanner:
         result = subprocess.run(["tfas", "bad_path_xyy888"], capture_output=True, text=True)
         assert result.returncode == 1
 
-    def test_main_directory(self, temp_tf_dir):
+    def test_main_directory_fail(self, temp_tf_dir):
         result = subprocess.run(["tfas", temp_tf_dir], capture_output=True, text=True)
         assert result.stderr == ""
         assert result.stdout == "FAIL: 1 of 1 scanned files are authoritative.\n"
         assert result.returncode == 1
 
+    def test_main_directory_ok(self, temp_non_authoritative_tf_file):
+        result = subprocess.run(["tfas", "-v", temp_non_authoritative_tf_file], capture_output=True, text=True)
+        assert result.stderr == ""
+        assert "PASS: 0 of 1 scanned files are authoritative.\n" in result.stdout
+        assert result.returncode == 0
+
     def test_main_directory_verbose(self, temp_tf_dir):
         result = subprocess.run(["tfas", "-v", temp_tf_dir], capture_output=True, text=True)
         assert result.stderr == ""
         assert result.returncode == 1
+
+    def test_main_directory_exception(self, temp_tf_file_with_exception_same_line):
+        result = subprocess.run(["tfas", "-v", temp_tf_file_with_exception_same_line], capture_output=True, text=True)
+        assert result.stderr == ""
+        assert result.returncode == 0
