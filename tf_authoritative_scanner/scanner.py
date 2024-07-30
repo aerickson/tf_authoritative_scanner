@@ -74,7 +74,7 @@ class TFAuthoritativeScanner:
             "excepted_lines": excepted_lines,
         }
 
-    def scan_directory(self, directory):
+    def _scan_directory(self, directory):
         for root, dirs, files in os.walk(directory):
             if not self.include_dotdirs:
                 dirs[:] = [d for d in dirs if not d.startswith(".")]
@@ -87,7 +87,7 @@ class TFAuthoritativeScanner:
         total_files = 0
         for path in directory:
             if os.path.isdir(path):
-                files = self.scan_directory(path)
+                files = self._scan_directory(path)
             else:
                 files = [path]
 
