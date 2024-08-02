@@ -98,9 +98,6 @@ poetry version patch
 ### TODO
 
 - publish to pypi
-- more advanced detection
-  - simple substring is used now, check for `resource "BLAH"` or `resource 'BLAH'`
-  - don't false trigger, see 'Known Issues' above
 - add an option to show the list of authoritative resources checked for
 - provide links to documentation when an authoritative resource is detected
 
