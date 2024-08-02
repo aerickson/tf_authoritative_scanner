@@ -9,26 +9,10 @@ import os.path
 
 
 class TFAuthoritativeScanner:
-    # verified authoritative resources that don't match the _binding or _policy suffixes
-    additional_authoritative_resources = [
+    # verified authoritative GCP resources that don't match the _binding or _policy suffixes
+    additional_authoritative_gcp_resources = [
         # project iam
         "google_project_iam_audit_config",  # https://registry.terraform.io/providers/hashicorp/google/latest/docs/resources/google_project_iam
-    ]
-
-    # less interesting / not verified authoritative resources
-    _additional_resources = [
-        "google_cloud_run_service",
-    ]
-
-    _verified_non_authoritative_resources = [
-        "google_organization_iam_member",
-        "google_compute_instance",
-        "google_storage_bucket",
-        "google_sql_database_instance",
-        "google_vpc_network",
-        "google_compute_firewall",
-        "google_compute_subnetwork",
-        "google_folder_iam_member",  # https://registry.terraform.io/providers/hashicorp/google/latest/docs/resources/google_folder_iam
     ]
 
     exception_comment_pattern = re.compile(r"#\s*terraform_authoritative_scanner_ok")
@@ -58,7 +42,7 @@ class TFAuthoritativeScanner:
             resource_name.endswith("_binding") or resource_name.endswith("_policy")
         ):
             return {"authoritative": True, "confidence": 75}
-        if resource_name in self.additional_authoritative_resources:
+        if resource_name in self.additional_authoritative_gcp_resources:
             return {"authoritative": True, "confidence": 100}
         return {"authoritative": False, "confidence": 90}
 
