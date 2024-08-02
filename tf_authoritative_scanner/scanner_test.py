@@ -150,12 +150,10 @@ class TestTFAuthoritativeScanner:
         assert len(r["results"][0]["authoritative_lines"]) == 0
         assert len(r["results"][0]["excepted_lines"]) == 0
 
-    def test_check_known_issue(self, scanner, temp_tf_file_authoritative_resource_name_but_not_resource):
-        # see 'Known Issues' in README.md
-        #   - ideally this would be 0 authoritative lines and 1 excepted line
+    def test_check_ar_in_name(self, scanner, temp_tf_file_authoritative_resource_name_but_not_resource):
         r = scanner.check_paths_for_authoritative_resources([temp_tf_file_authoritative_resource_name_but_not_resource])
         assert r["files_scanned"] == 1
-        assert len(r["results"][0]["authoritative_lines"]) == 1
+        assert len(r["results"][0]["authoritative_lines"]) == 0
         assert len(r["results"][0]["excepted_lines"]) == 0
 
     def test_check_exclude_comment_inline(self, scanner, temp_tf_file_with_exception_same_line):
@@ -204,3 +202,41 @@ class TestTFAuthoritativeScanner:
         result = subprocess.run(["tfas", "-v", temp_tf_file_with_exception_same_line], capture_output=True, text=True)
         assert result.stderr == ""
         assert result.returncode == 0
+
+    # tests for authoritative_resource_in_line
+
+    def test_authoritative_resource_in_line_basic(self, scanner):
+        assert scanner.authoritative_resource_in_line('resource "google_project_iam_binding" "binding" {')[
+            "authoritative"
+        ]
+        assert not scanner.authoritative_resource_in_line('resource "google_project_iam_funtime" "binding" {')[
+            "authoritative"
+        ]
+
+    def test_authoritative_resource_in_line_complex(self, scanner):
+        # AR in the comment
+        assert not scanner.authoritative_resource_in_line(
+            'resource "google_project_iam_funtime" "a_google_project_iam_binding_test" {'
+        )["authoritative"]
+        # AR in a string
+        assert not scanner.authoritative_resource_in_line('a = "google_project_iam_binding"')["authoritative"]
+
+    # tests for build_gcp_resource_doc_url_from_name
+
+    def test_build_gcp_resource_doc_url_from_name(self, scanner):
+        assert (
+            scanner.build_gcp_resource_doc_url_from_name("google_project_iam_binding")
+            == "https://registry.terraform.io/providers/hashicorp/google/latest/docs/resources/google_project_iam"
+        )
+
+    # test is_gcp_resource_name_authoritative
+
+    def test_is_gcp_resource_name_authoritative(self, scanner):
+        assert scanner.is_gcp_resource_name_authoritative("google_project_iam_binding")
+        assert scanner.is_gcp_resource_name_authoritative("google_project_iam_audit_config")
+
+    def test_is_gcp_resource_name_authoritative_complex(self, scanner):
+        # google_project_iam_audit_config, known
+        assert scanner.is_gcp_resource_name_authoritative("google_project_iam_audit_config")
+        # pattern based, unknown
+        assert scanner.is_gcp_resource_name_authoritative("google_silly_future_audit_config")
