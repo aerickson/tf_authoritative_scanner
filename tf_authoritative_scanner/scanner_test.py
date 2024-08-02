@@ -234,3 +234,9 @@ class TestTFAuthoritativeScanner:
     def test_is_gcp_resource_name_authoritative(self, scanner):
         assert scanner.is_gcp_resource_name_authoritative("google_project_iam_binding")
         assert scanner.is_gcp_resource_name_authoritative("google_project_iam_audit_config")
+
+    def test_is_gcp_resource_name_authoritative_complex(self, scanner):
+        # google_project_iam_audit_config, known
+        assert scanner.is_gcp_resource_name_authoritative("google_project_iam_audit_config")
+        # pattern based, unknown
+        assert scanner.is_gcp_resource_name_authoritative("google_silly_future_audit_config")
