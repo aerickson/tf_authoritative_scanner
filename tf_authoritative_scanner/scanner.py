@@ -48,12 +48,6 @@ class TFAuthoritativeScanner:
         resource_name = resource_name.replace("google_", "")
         return f"https://registry.terraform.io/providers/hashicorp/google/latest/docs/resources/google_{resource_name}"
 
-    def authoritative_resource_in_line_old(self, line):
-        for ar in self.additional_authoritative_resources:
-            if ar in line:
-                return True
-        return False
-
     # from inspecting the GCP provider, basically anything with the '_policy' or '_binding'
     #   in the resource name is authoritative aka 'google*policy' or 'google*binding'.
     # - see the GCP provider's docs
@@ -63,10 +57,10 @@ class TFAuthoritativeScanner:
         if resource_name.startswith("google_") and (
             resource_name.endswith("_binding") or resource_name.endswith("_policy")
         ):
-            return True
+            return {"authoritative": True, "confidence": 75}
         if resource_name in self.additional_authoritative_resources:
-            return True
-        return False
+            return {"authoritative": True, "confidence": 100}
+        return {"authoritative": False, "confidence": 90}
 
     # - check word parts vs substring
     # - use patterns vs hardcoded list
@@ -74,7 +68,10 @@ class TFAuthoritativeScanner:
         word_parts = _get_first_two_word_parts(line)
         first_word, second_word = word_parts
         if first_word == "resource":
-            if self.is_gcp_resource_name_authoritative(second_word):
+            r = self.is_gcp_resource_name_authoritative(second_word)
+            authoritative = r["authoritative"]
+            _confidence = r["confidence"]
+            if authoritative:
                 return True
         return False
 
