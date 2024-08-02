@@ -220,3 +220,11 @@ class TestTFAuthoritativeScanner:
         )
         # AR in a string
         assert not scanner.authoritative_resource_in_line('a = "google_project_iam_binding"')
+
+    #
+
+    def test_build_gcp_resource_doc_url_from_name(self, scanner):
+        assert (
+            scanner.build_gcp_resource_doc_url_from_name("google_project_iam_binding")
+            == "https://registry.terraform.io/providers/hashicorp/google/latest/docs/resources/google_project_iam"
+        )
