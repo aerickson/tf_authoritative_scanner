@@ -9,25 +9,10 @@ import os.path
 
 
 class TFAuthoritativeScanner:
-    # from inspecting the GCP provider, basically anything with the '_policy' or '_binding' in the resource name is authoritative
-    #   aka 'google*policy' or 'google*binding'
-    authoritative_resources = [
+    # verified authoritative resources that don't match the _binding or _policy suffixes
+    additional_authoritative_resources = [
         # project iam
-        "google_project_iam_audit_config",  # https://registry.terraform.io/providers/hashicorp/google/latest/docs/resources/google_project_iam.html
-        "google_project_iam_policy",
-        "google_project_iam_binding",
-        # folder iam
-        "google_folder_iam_binding",  # https://registry.terraform.io/providers/hashicorp/google/latest/docs/resources/google_folder_iam
-        "google_folder_iam_policy",
-        # org iam
-        "google_organization_iam_binding",  # https://registry.terraform.io/providers/hashicorp/google/latest/docs/resources/google_organization_iam
-        "google_organization_iam_policy",
-        # storage bucket iam
-        "google_storage_bucket_iam_binding",  # https://registry.terraform.io/providers/hashicorp/google/latest/docs/resources/storage_bucket_iam
-        "google_storage_bucket_iam_policy",
-        # pubsub topic iam
-        "google_pubsub_topic_iam_binding",  # https://registry.terraform.io/providers/hashicorp/google/latest/docs/resources/pubsub_topic_iam
-        "google_pubsub_topic_iam_policy",
+        "google_project_iam_audit_config",  # https://registry.terraform.io/providers/hashicorp/google/latest/docs/resources/google_project_iam
     ]
 
     # less interesting / not verified authoritative resources
@@ -52,24 +37,44 @@ class TFAuthoritativeScanner:
         self.include_dotdirs = include_dotdirs
         self.verbosity = verbosity
 
+    # examples:
+    #   "google_project_iam_audit_config",  # https://registry.terraform.io/providers/hashicorp/google/latest/docs/resources/google_project_iam
+    #   "google_folder_iam_binding",  # https://registry.terraform.io/providers/hashicorp/google/latest/docs/resources/google_folder_iam
+    def build_gcp_resource_doc_url_from_name(self, resource_name):
+        # remove _binding and _policy from resource_name
+        resource_name = resource_name.replace("_binding", "")
+        resource_name = resource_name.replace("_policy", "")
+        # remove google_ prefix
+        resource_name = resource_name.replace("google_", "")
+        return f"https://registry.terraform.io/providers/hashicorp/google/latest/docs/resources/google_{resource_name}"
+
     def authoritative_resource_in_line_old(self, line):
-        for ar in self.authoritative_resources:
+        for ar in self.additional_authoritative_resources:
             if ar in line:
                 return True
+        return False
+
+    # from inspecting the GCP provider, basically anything with the '_policy' or '_binding'
+    #   in the resource name is authoritative aka 'google*policy' or 'google*binding'.
+    # - see the GCP provider's docs
+    #   https://github.com/GoogleCloudPlatform/magic-modules/blob/19bec78daccb664b42f915e1fc552dea6a64ea93/mmv1/templates/terraform/resource_iam.html.markdown.tmpl#L59-L60
+    def is_gcp_resource_name_authoritative(self, resource_name):
+        # if the resource name starts with 'google_' and ends with '_binding' or '_policy' then it is authoritative
+        if resource_name.startswith("google_") and (
+            resource_name.endswith("_binding") or resource_name.endswith("_policy")
+        ):
+            return True
+        if resource_name in self.additional_authoritative_resources:
+            return True
         return False
 
     # - check word parts vs substring
     # - use patterns vs hardcoded list
     def authoritative_resource_in_line(self, line):
-        word_parts = line.split()
-        if len(word_parts) < 2:
-            return False
-        first_word = _remove_inner_quotes(word_parts[0])
-        print(f"first_word: {first_word}")
+        word_parts = _get_first_two_word_parts(line)
+        first_word, second_word = word_parts
         if first_word == "resource":
-            print(f"resource_name: {word_parts[1]}")
-            resource_name = _remove_inner_quotes(word_parts[1])
-            if resource_name in self.authoritative_resources:
+            if self.is_gcp_resource_name_authoritative(second_word):
                 return True
         return False
 
@@ -199,6 +204,16 @@ def _remove_inner_quotes(s):
     s = re.sub(single_quote_pattern, lambda m: m.group(0).replace("'", ""), s)
 
     return s
+
+
+# known issue: returns "", "" on less than two word-part strings
+def _get_first_two_word_parts(string):
+    word_parts = string.split()
+    if len(word_parts) < 2:
+        return "", ""
+    first_word = _remove_inner_quotes(word_parts[0])
+    second_word = _remove_inner_quotes(word_parts[1])
+    return first_word, second_word
 
 
 def main():

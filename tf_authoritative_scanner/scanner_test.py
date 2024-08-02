@@ -209,6 +209,10 @@ class TestTFAuthoritativeScanner:
         assert scanner.authoritative_resource_in_line('resource "google_project_iam_binding" "binding" {')
         assert not scanner.authoritative_resource_in_line('resource "google_project_iam_funtime" "binding" {')
 
+    # google_project_iam_audit_config is authoritative, but doesn't end in _policy or _binding
+    def test_authoritative_resource_in_line_non_matching_pattern(self, scanner):
+        assert scanner.authoritative_resource_in_line('resource "google_project_iam_audit_config" "blah" {')
+
     def test_authoritative_resource_in_line_complex(self, scanner):
         # AR in the comment
         assert not scanner.authoritative_resource_in_line(
