@@ -52,9 +52,24 @@ class TFAuthoritativeScanner:
         self.include_dotdirs = include_dotdirs
         self.verbosity = verbosity
 
-    def is_authoritative_resource(self, resource):
+    def authoritative_resource_in_line_old(self, line):
         for ar in self.authoritative_resources:
-            if ar in resource:
+            if ar in line:
+                return True
+        return False
+
+    # - check word parts vs substring
+    # - use patterns vs hardcoded list
+    def authoritative_resource_in_line(self, line):
+        word_parts = line.split()
+        if len(word_parts) < 2:
+            return False
+        first_word = _remove_inner_quotes(word_parts[0])
+        print(f"first_word: {first_word}")
+        if first_word == "resource":
+            print(f"resource_name: {word_parts[1]}")
+            resource_name = _remove_inner_quotes(word_parts[1])
+            if resource_name in self.authoritative_resources:
                 return True
         return False
 
@@ -73,7 +88,7 @@ class TFAuthoritativeScanner:
                 previous_line = stripped_line
                 continue
             # Check if the line contains any authoritative resource and is not excepted
-            if any(resource in line for resource in self.authoritative_resources):
+            if self.authoritative_resource_in_line(stripped_line):
                 if not self.exception_comment_pattern.search(line) and not self.exception_comment_pattern.search(
                     previous_line
                 ):
@@ -171,6 +186,19 @@ def _get_version(rel_path):
             return line.split(delim)[1]
     else:
         raise RuntimeError("Unable to find version string.")
+
+
+def _remove_inner_quotes(s):
+    # Define patterns for both single and double quotes
+    double_quote_pattern = r"\"([^\"]*?)\""
+    single_quote_pattern = r"\'([^\']*?)\'"
+
+    # Remove inner quotes for double quotes
+    s = re.sub(double_quote_pattern, lambda m: m.group(0).replace('"', ""), s)
+    # Remove inner quotes for single quotes
+    s = re.sub(single_quote_pattern, lambda m: m.group(0).replace("'", ""), s)
+
+    return s
 
 
 def main():
