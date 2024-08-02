@@ -55,8 +55,9 @@ class TFAuthoritativeScanner:
             return {"authoritative": True, "confidence": 80}
         return {"authoritative": False, "confidence": 90}
 
-    # - check word parts vs substring
-    # - use patterns vs hardcoded list
+    # improvements over earlier substring-based approach:
+    #   - check word parts vs substring
+    #   - use patterns vs hardcoded list
     def authoritative_resource_in_line(self, line):
         _confidence = 100
         word_parts = _get_first_two_word_parts(line)
