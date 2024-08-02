@@ -9,31 +9,41 @@ import os.path
 
 
 class TFAuthoritativeScanner:
+    # from inspecting the GCP provider, basically anything with the '_policy' or '_binding' in the resource name is authoritative
+    #   aka 'google*policy' or 'google*binding'
     authoritative_resources = [
-        "google_folder_iam_binding",
-        "google_folder_iam_policy",
-        "google_organization_iam_binding",
-        "google_organization_iam_policy",
-        "google_project_iam_audit_config",
-        "google_project_iam_binding",
+        # project iam
+        "google_project_iam_audit_config",  # https://registry.terraform.io/providers/hashicorp/google/latest/docs/resources/google_project_iam.html
         "google_project_iam_policy",
-        "google_storage_bucket_iam_binding",
+        "google_project_iam_binding",
+        # folder iam
+        "google_folder_iam_binding",  # https://registry.terraform.io/providers/hashicorp/google/latest/docs/resources/google_folder_iam
+        "google_folder_iam_policy",
+        # org iam
+        "google_organization_iam_binding",  # https://registry.terraform.io/providers/hashicorp/google/latest/docs/resources/google_organization_iam
+        "google_organization_iam_policy",
+        # storage bucket iam
+        "google_storage_bucket_iam_binding",  # https://registry.terraform.io/providers/hashicorp/google/latest/docs/resources/storage_bucket_iam
         "google_storage_bucket_iam_policy",
+        # pubsub topic iam
+        "google_pubsub_topic_iam_binding",  # https://registry.terraform.io/providers/hashicorp/google/latest/docs/resources/pubsub_topic_iam
+        "google_pubsub_topic_iam_policy",
     ]
 
     # less interesting / not verified authoritative resources
     _additional_resources = [
+        "google_cloud_run_service",
+    ]
+
+    _verified_non_authoritative_resources = [
+        "google_organization_iam_member",
         "google_compute_instance",
         "google_storage_bucket",
         "google_sql_database_instance",
         "google_vpc_network",
         "google_compute_firewall",
         "google_compute_subnetwork",
-        "google_folder_iam_member",
-        "google_organization_iam_member",
-        "google_container_cluster",
-        "google_pubsub_topic",
-        "google_cloud_run_service",
+        "google_folder_iam_member",  # https://registry.terraform.io/providers/hashicorp/google/latest/docs/resources/google_folder_iam
     ]
 
     exception_comment_pattern = re.compile(r"#\s*terraform_authoritative_scanner_ok")
@@ -41,6 +51,12 @@ class TFAuthoritativeScanner:
     def __init__(self, include_dotdirs, verbosity=0):
         self.include_dotdirs = include_dotdirs
         self.verbosity = verbosity
+
+    def is_authoritative_resource(self, resource):
+        for ar in self.authoritative_resources:
+            if ar in resource:
+                return True
+        return False
 
     def check_file_for_authoritative_resources(self, file_path):
         with open(file_path, "r") as file:
