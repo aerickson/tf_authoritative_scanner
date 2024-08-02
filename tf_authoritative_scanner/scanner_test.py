@@ -206,16 +206,20 @@ class TestTFAuthoritativeScanner:
     # tests for authoritative_resource_in_line
 
     def test_authoritative_resource_in_line_basic(self, scanner):
-        assert scanner.authoritative_resource_in_line('resource "google_project_iam_binding" "binding" {')
-        assert not scanner.authoritative_resource_in_line('resource "google_project_iam_funtime" "binding" {')
+        assert scanner.authoritative_resource_in_line('resource "google_project_iam_binding" "binding" {')[
+            "authoritative"
+        ]
+        assert not scanner.authoritative_resource_in_line('resource "google_project_iam_funtime" "binding" {')[
+            "authoritative"
+        ]
 
     def test_authoritative_resource_in_line_complex(self, scanner):
         # AR in the comment
         assert not scanner.authoritative_resource_in_line(
             'resource "google_project_iam_funtime" "a_google_project_iam_binding_test" {'
-        )
+        )["authoritative"]
         # AR in a string
-        assert not scanner.authoritative_resource_in_line('a = "google_project_iam_binding"')
+        assert not scanner.authoritative_resource_in_line('a = "google_project_iam_binding"')["authoritative"]
 
     # tests for build_gcp_resource_doc_url_from_name
 

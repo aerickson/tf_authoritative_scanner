@@ -9,7 +9,7 @@ import os.path
 
 
 class TFAuthoritativeScanner:
-    # verified authoritative GCP resources that don't match the _binding or _policy suffixes
+    # hand-verified authoritative GCP resources that don't match the _binding or _policy suffixes
     additional_authoritative_gcp_resources = [
         # project iam
         "google_project_iam_audit_config",  # https://registry.terraform.io/providers/hashicorp/google/latest/docs/resources/google_project_iam
@@ -49,6 +49,7 @@ class TFAuthoritativeScanner:
     # - check word parts vs substring
     # - use patterns vs hardcoded list
     def authoritative_resource_in_line(self, line):
+        _confidence = 100
         word_parts = _get_first_two_word_parts(line)
         first_word, second_word = word_parts
         if first_word == "resource":
@@ -56,8 +57,8 @@ class TFAuthoritativeScanner:
             authoritative = r["authoritative"]
             _confidence = r["confidence"]
             if authoritative:
-                return True
-        return False
+                return {"authoritative": True, "confidence": _confidence}
+        return {"authoritative": False, "confidence": _confidence}
 
     def check_file_for_authoritative_resources(self, file_path):
         with open(file_path, "r") as file:
@@ -74,7 +75,10 @@ class TFAuthoritativeScanner:
                 previous_line = stripped_line
                 continue
             # Check if the line contains any authoritative resource and is not excepted
-            if self.authoritative_resource_in_line(stripped_line):
+            r = self.authoritative_resource_in_line(stripped_line)
+            r_authoritative = r["authoritative"]
+            _r_confidence = r["confidence"]
+            if r_authoritative:
                 if not self.exception_comment_pattern.search(line) and not self.exception_comment_pattern.search(
                     previous_line
                 ):
