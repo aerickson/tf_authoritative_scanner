@@ -7,12 +7,12 @@ from tf_authoritative_scanner.util import _get_version
 
 
 def run_tfas_and_terraform(args):
-    # Run `tfas .`
+    command_list = ["tfas", "."]
     try:
-        _result = subprocess.run(["tfas", "."], check=True)
+        _result = subprocess.run(command_list, check=True)
     except subprocess.CalledProcessError as e:
         print()
-        print("Error running `tfas .`. Not running `terraform`.", file=sys.stderr)
+        print(f"Error running `{' '.join(command_list)}`. Not running `terraform`.", file=sys.stderr)
         sys.exit(e.returncode)
 
     # If `tfas .` exits with 0, continue with `terraform`
@@ -50,4 +50,5 @@ def main():
     args = parser.parse_args()
 
     print_ascii_art_banner()
+    # TODO: detect if we're in a terraform directory and if not show usage/help
     run_tfas_and_terraform(args.terraform_args)
