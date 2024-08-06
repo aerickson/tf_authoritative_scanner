@@ -95,6 +95,8 @@ poetry version patch
 - publish to pypi
 - add an option to show the list of authoritative resources checked for
 - provide links to documentation when an authoritative resource is detected
+- terraform wrapper to ensure tfas protection earlier
+  - pre-commit not always run before applying
 
 ## Relevant Links
 
