@@ -45,7 +45,9 @@ def is_terraform_directory():
 
 
 def main():
-    parser = argparse.ArgumentParser(description="Run `tfas .` and continue with `terraform` if successful.")
+    parser = argparse.ArgumentParser(
+        description="`tfas` Terraform wrapper. Ensures Terraform code in the current directory doesn't have any authoritative resources before running `terraform`."
+    )
     parser.add_argument("terraform_args", nargs=argparse.REMAINDER, help="Arguments to pass to `terraform`")
     parser.add_argument(
         "--version",
