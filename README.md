@@ -92,7 +92,8 @@ poetry version patch
 
 ### TODO
 
-- publish to pypi
+- publish to pypi?
+- surface confidence in verbose mode
 - add an option to show the list of authoritative resources checked for
 - provide links to documentation when an authoritative resource is detected
 - terraform wrapper to ensure tfas protection earlier
