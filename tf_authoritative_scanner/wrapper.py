@@ -18,6 +18,9 @@ def run_tfas_and_terraform(args):
     # If `tfas .` exits with 0, continue with `terraform`
     terraform_command = ["terraform"] + args
 
+    print(f"Successfully ran `{' '.join(command_list)}`. Continuing with `{' '.join(terraform_command)}`...")
+    print()
+
     # Replace the current process with `terraform` command
     os.execvp("terraform", terraform_command)
 
@@ -25,7 +28,6 @@ def run_tfas_and_terraform(args):
 def print_ascii_art_banner():
     print(
         r"""
-
  __       ___                 __
 /\ \__  /'___\               /\ \__
 \ \ ,_\/\ \__/   __      ____\ \ ,_\
@@ -36,6 +38,10 @@ def print_ascii_art_banner():
 
 """
     )
+
+
+def is_terraform_directory():
+    return any(file.endswith(".tf") for file in os.listdir("."))
 
 
 def main():
@@ -50,5 +56,14 @@ def main():
     args = parser.parse_args()
 
     print_ascii_art_banner()
-    # TODO: detect if we're in a terraform directory and if not show usage/help
+
+    if not is_terraform_directory():
+        print("No Terraform files found in the current directory. Please ensure you're in a directory with .tf files.")
+        # parser.print_help()
+        sys.exit(1)
+
     run_tfas_and_terraform(args.terraform_args)
+
+
+if __name__ == "__main__":
+    main()
