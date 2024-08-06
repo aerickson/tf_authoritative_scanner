@@ -167,6 +167,21 @@ class TFAuthoritativeScanner:
             sys.exit(0)
 
 
+def print_ascii_art_banner():
+    print(
+        r"""
+ __       ___
+/\ \__  /'___\
+\ \ ,_\/\ \__/   __      ____
+ \ \ \/\ \ ,__\/'__`\   /',__\
+  \ \ \_\ \ \_/\ \L\.\_/\__, `\
+   \ \__\\ \_\\ \__/.\_\/\____/
+    \/__/ \/_/ \/__/\/_/\/___/
+
+"""
+    )
+
+
 # TODO: move these to util files
 
 
@@ -202,6 +217,7 @@ def _get_first_two_word_parts(string):
 
 # TODO: move this to a cli.py file
 def main():
+    print_ascii_art_banner()
     parser = argparse.ArgumentParser(description="Static analysis of Terraform files for authoritative GCP resources.")
     parser.add_argument("paths", metavar="path", type=str, nargs="+", help="File or directory to scan")
     parser.add_argument(
@@ -227,7 +243,3 @@ def main():
     _verify_paths(args.paths)
     scanner = TFAuthoritativeScanner(args.include_dotdirs, args.verbose)
     scanner.run(args.paths)
-
-
-if __name__ == "__main__":
-    main()
