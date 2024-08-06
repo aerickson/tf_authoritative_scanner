@@ -4,8 +4,9 @@ import os
 import re
 import sys
 import argparse
-import codecs
 import os.path
+
+from tf_authoritative_scanner.util import _get_version
 
 
 class TFAuthoritativeScanner:
@@ -174,21 +175,6 @@ def _verify_paths(paths):
         if not os.path.exists(path):
             print(f"Error: The path '{path}' does not exist.")
             sys.exit(1)
-
-
-def _read(rel_path):
-    here = os.path.abspath(os.path.dirname(__file__))
-    with codecs.open(os.path.join(here, rel_path), "r") as fp:
-        return fp.read()
-
-
-def _get_version(rel_path):
-    for line in _read(rel_path).splitlines():
-        if line.startswith("__version__"):
-            delim = '"' if '"' in line else "'"
-            return line.split(delim)[1]
-    else:
-        raise RuntimeError("Unable to find version string.")
 
 
 def _remove_inner_quotes(s):
