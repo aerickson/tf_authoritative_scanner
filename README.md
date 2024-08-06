@@ -74,11 +74,6 @@ $ poetry install
 $ tfas
 ```
 
-## Known Issues
-
-- resource names that have authoritative resource will alert
-  - use an exception comment for now
-
 ## Development
 
 ### Version Bumping
