@@ -3,7 +3,7 @@ import os
 import argparse
 
 from tf_authoritative_scanner.scanner import TFAuthoritativeScanner
-from tf_authoritative_scanner.util import _get_version, remove_leading_trailing_newline
+from tf_authoritative_scanner.util import get_version, remove_leading_trailing_newline
 
 
 class Wrapper:
@@ -58,7 +58,7 @@ def main():
     parser.add_argument(
         "--version",
         action="version",
-        version=_get_version("__init__.py"),
+        version=get_version("__init__.py"),
     )
     parser.add_argument("--no-ascii-art", "-A", action="store_true", help="Do not print ASCII art")
     args = parser.parse_args()

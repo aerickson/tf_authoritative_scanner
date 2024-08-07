@@ -7,7 +7,7 @@ import argparse
 import os.path
 
 from tf_authoritative_scanner.util import (
-    _get_version,
+    get_version,
     remove_leading_trailing_newline,
     _verify_paths,
     _get_first_two_word_parts,
@@ -209,7 +209,7 @@ def main():
     parser.add_argument(
         "--version",
         action="version",
-        version=_get_version("__init__.py"),
+        version=get_version("__init__.py"),
     )
     parser.add_argument(
         "-v",
