@@ -22,6 +22,13 @@ def temp_tf_file():
 
 
 @pytest.fixture
+def temp_tf_dir_empty():
+    temp_dir = tempfile.TemporaryDirectory()
+    yield temp_dir.name
+    temp_dir.cleanup()
+
+
+@pytest.fixture
 def temp_tf_dir_good(temp_tf_file):
     temp_dir = tempfile.TemporaryDirectory()
     tf_file_path = os.path.join(temp_dir.name, os.path.basename(temp_tf_file))
@@ -80,3 +87,11 @@ class TestWrapper:
         result = subprocess.run(["tfast", "plan"], cwd=temp_tf_dir_good, capture_output=True, text=True)
         assert "Terraform has compared your real infrastructure" in result.stdout
         assert result.returncode == 0
+
+    def test_run_tfas_and_terraform_empty(self, temp_tf_dir_empty: str):
+        result = subprocess.run(["tfast", "-A", "plan"], cwd=temp_tf_dir_empty, capture_output=True, text=True)
+        assert (
+            "No Terraform files found in the current directory. Please ensure you're in a directory with .tf files."
+            in result.stdout
+        )
+        assert result.returncode == 1
