@@ -117,6 +117,7 @@ class TFAuthoritativeScanner:
     def check_paths_for_authoritative_resources(self, directory):
         results = []
         total_files = 0
+        authoritative_files_found = False
         for path in directory:
             if os.path.isdir(path):
                 files = self._scan_directory(path)
@@ -127,7 +128,13 @@ class TFAuthoritativeScanner:
                 total_files += 1
                 file_entry = self.check_file_for_authoritative_resources(file_path)
                 results.append(file_entry)
-        return {"files_scanned": total_files, "results": results}
+                if file_entry["authoritative"]:
+                    authoritative_files_found = True
+        return {
+            "files_scanned": total_files,
+            "results": results,
+            "authoritative_files_found": authoritative_files_found,
+        }
 
     def run(self, paths):
         total_files = 0
@@ -168,6 +175,7 @@ class TFAuthoritativeScanner:
 
 
 def print_tfas_banner():
+    # return
     print(
         r"""
  __       ___

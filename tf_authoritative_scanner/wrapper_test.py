@@ -2,50 +2,81 @@ import os
 import subprocess
 import tempfile
 import pytest
-from pathlib import Path
 
 
 @pytest.fixture
-def temp_terraform_dir():
-    # Create a temporary directory
-    with tempfile.TemporaryDirectory() as tempdir:
-        # Create a .tf file in the directory to simulate a Terraform directory
-        tf_file_path = Path(tempdir) / "main.tf"
-        tf_file_path.write_text("# comment to just get this moving")
+def temp_tf_file():
+    with tempfile.NamedTemporaryFile(suffix=".tf", delete=False) as temp_file:
+        temp_file.write(b"""
+        resource "google_project_iam_binding" "binding" {
+            project = "my-project"
+            role    = "roles/viewer"
+            members = [
+                "user:viewer@example.com",
+            ]
+        }
+        """)
+        temp_file.close()
+        yield temp_file.name
+    os.remove(temp_file.name)
 
-        # Change to the temporary directory
-        old_cwd = os.getcwd()
-        os.chdir(tempdir)
 
-        yield tempdir
+@pytest.fixture
+def temp_tf_dir_good(temp_tf_file):
+    temp_dir = tempfile.TemporaryDirectory()
+    tf_file_path = os.path.join(temp_dir.name, os.path.basename(temp_tf_file))
+    with open(tf_file_path, "w") as f:
+        f.write("""
+        # harmless file
 
-        # Change back to the original directory
-        os.chdir(old_cwd)
+        """)
+    yield temp_dir.name
+    temp_dir.cleanup()
+
+
+@pytest.fixture
+def temp_tf_dir_bad(temp_tf_file):
+    temp_dir = tempfile.TemporaryDirectory()
+    tf_file_path = os.path.join(temp_dir.name, os.path.basename(temp_tf_file))
+    with open(tf_file_path, "w") as f:
+        f.write("""
+        resource "google_project_iam_binding" "binding" {
+            project = "my-project"
+            role    = "roles/viewer"
+            members = [
+                "user:viewer@example.com",
+            ]
+        }
+
+        # terraform_authoritative_scanner_ok
+        resource "google_project_iam_binding" "binding" {
+            project = "my-project"
+            role    = "roles/viewer"
+            members = [
+                "user:viewer@example.com",
+            ]
+        }
+        """)
+    yield temp_dir.name
+    temp_dir.cleanup()
 
 
 class TestWrapper:
-    def test_is_terraform_directory(self, temp_terraform_dir):
+    def test_is_terraform_directory(self):
         result = subprocess.run(["tfast", "--version"], capture_output=True, text=True)
-        assert "No Terraform files found" not in result.stderr, "The directory should contain .tf files"
+        assert result.returncode == 0
 
-    def test_run_tfas_and_terraform(self, temp_terraform_dir):
-        result = subprocess.run(["tfast", "plan"], capture_output=True, text=True)
+    def test_run_tfas_and_terraform_help(self, temp_tf_dir_bad: str):
+        result = subprocess.run(["tfast", "--help"], cwd=temp_tf_dir_bad, capture_output=True, text=True)
+        assert "Ensures Terraform code in the current directory" in result.stdout
+        assert result.returncode == 0
 
-        assert "lharasdf" in result.stdout
-        # assert "Successfully ran `tfas .`" in result.stdout, "The script should successfully run `tfas .`"
-        # assert "Continuing with `terraform plan`" in result.stdout, "The script should continue with `terraform plan`"
-        assert result.returncode == 0, "The script should exit with 0"
+    def test_run_tfas_and_terraform_bad(self, temp_tf_dir_bad: str):
+        result = subprocess.run(["tfast", "plan"], cwd=temp_tf_dir_bad, capture_output=True, text=True)
+        assert "Authoritative files found. Not running" in result.stdout
+        assert result.returncode == 1
 
-    def test_print_ascii_art_banner(self, temp_terraform_dir):
-        result = subprocess.run(["tfast", "--version"], capture_output=True, text=True)
-        assert result.returncode == 0, "The script should exit with 0"
-
-    def test_no_terraform_files(self):
-        with tempfile.TemporaryDirectory() as tempdir:
-            old_cwd = os.getcwd()
-            os.chdir(tempdir)
-            result = subprocess.run(["tfast", "plan"], capture_output=True, text=True)
-            os.chdir(old_cwd)
-            assert "foooofoooo" in result.stdout
-            assert "No Terraform files found" in result.stdout, "The script should exit if no .tf files are found"
-            assert result.returncode == 1, "The script should exit with 1"
+    def test_run_tfas_and_terraform_good(self, temp_tf_dir_good: str):
+        result = subprocess.run(["tfast", "plan"], cwd=temp_tf_dir_good, capture_output=True, text=True)
+        assert "Terraform has compared your real infrastructure" in result.stdout
+        assert result.returncode == 0
