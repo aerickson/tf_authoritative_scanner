@@ -83,6 +83,9 @@ class TestWrapper:
         assert "Not running `terraform" in result.stdout
         assert result.returncode == 1
 
+    # ideally this wouldn't require `terraform` to be installed (nice that Github Actions has it)
+    #   - injecting a different command fails, because the execve call effectively kills pytest
+    #   - TODO: try mocking the terraform command
     def test_run_tfas_and_terraform_good(self, temp_tf_dir_good: str):
         result = subprocess.run(["tfast", "-A", "plan"], cwd=temp_tf_dir_good, capture_output=True, text=True)
         assert "Terraform has compared your real infrastructure against your configuration" in result.stdout
