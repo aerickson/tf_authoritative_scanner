@@ -91,7 +91,7 @@ tfast apply
 
 ## Development
 
-### Development
+### Testing Changes
 
 ```bash
 $ poetry shell
