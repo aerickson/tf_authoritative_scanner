@@ -46,5 +46,6 @@ class TestWrapper:
             os.chdir(tempdir)
             result = subprocess.run(["tfast", "plan"], capture_output=True, text=True)
             os.chdir(old_cwd)
+            assert "foooofoooo" in result.stdout
             assert "No Terraform files found" in result.stdout, "The script should exit if no .tf files are found"
             assert result.returncode == 1, "The script should exit with 1"

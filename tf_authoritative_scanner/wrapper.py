@@ -25,7 +25,7 @@ def run_tfas_and_terraform(args):
     os.execvp("terraform", terraform_command)
 
 
-def print_ascii_art_banner():
+def print_tfast_banner():
     print(
         r"""
  __       ___                 __
@@ -57,7 +57,8 @@ def main():
     )
     args = parser.parse_args()
 
-    print_ascii_art_banner()
+    # print_tfast_banner()
+    print("foooofoooo")
 
     if not is_terraform_directory():
         print("No Terraform files found in the current directory. Please ensure you're in a directory with .tf files.")
@@ -65,7 +66,3 @@ def main():
         sys.exit(1)
 
     run_tfas_and_terraform(args.terraform_args)
-
-
-if __name__ == "__main__":
-    main()
