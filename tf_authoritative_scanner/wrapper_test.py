@@ -73,7 +73,7 @@ class TestWrapper:
 
     def test_run_tfas_and_terraform_bad(self, temp_tf_dir_bad: str):
         result = subprocess.run(["tfast", "plan"], cwd=temp_tf_dir_bad, capture_output=True, text=True)
-        assert "Authoritative files found. Not running" in result.stdout
+        assert "Not running `terraform" in result.stdout
         assert result.returncode == 1
 
     def test_run_tfas_and_terraform_good(self, temp_tf_dir_good: str):

@@ -117,7 +117,7 @@ class TFAuthoritativeScanner:
     def check_paths_for_authoritative_resources(self, directory):
         results = []
         total_files = 0
-        authoritative_files_found = False
+        authoritative_files_found = 0
         for path in directory:
             if os.path.isdir(path):
                 files = self._scan_directory(path)
@@ -129,11 +129,12 @@ class TFAuthoritativeScanner:
                 file_entry = self.check_file_for_authoritative_resources(file_path)
                 results.append(file_entry)
                 if file_entry["authoritative"]:
-                    authoritative_files_found = True
+                    authoritative_files_found += 1
         return {
             "files_scanned": total_files,
             "results": results,
-            "authoritative_files_found": authoritative_files_found,
+            "authoritative_files_found": True if authoritative_files_found > 0 else False,
+            "authoritative_files_count": authoritative_files_found,
         }
 
     def run(self, paths):
@@ -174,10 +175,19 @@ class TFAuthoritativeScanner:
             sys.exit(0)
 
 
+def remove_leading_trailing_newline(text):
+    if text.startswith("\n"):
+        text = text[1:]
+    if text.endswith("\n"):
+        text = text[:-1]
+    return text
+
+
 def print_tfas_banner():
     # return
     print(
-        r"""
+        remove_leading_trailing_newline(
+            r"""
  __       ___
 /\ \__  /'___\
 \ \ ,_\/\ \__/   __      ____
@@ -187,6 +197,7 @@ def print_tfas_banner():
     \/__/ \/_/ \/__/\/_/\/___/
 
 """
+        )
     )
 
 
@@ -225,7 +236,6 @@ def _get_first_two_word_parts(string):
 
 # TODO: move this to a cli.py file
 def main():
-    print_tfas_banner()
     parser = argparse.ArgumentParser(description="Static analysis of Terraform files for authoritative GCP resources.")
     parser.add_argument("paths", metavar="path", type=str, nargs="+", help="File or directory to scan")
     parser.add_argument(
@@ -248,6 +258,7 @@ def main():
     )
     args = parser.parse_args()
 
+    print_tfas_banner()
     _verify_paths(args.paths)
     scanner = TFAuthoritativeScanner(args.include_dotdirs, args.verbose)
     scanner.run(args.paths)

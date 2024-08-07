@@ -9,12 +9,14 @@ from tf_authoritative_scanner.util import _get_version
 def run_tfas_and_terraform(args):
     scanner = TFAuthoritativeScanner(include_dotdirs=False, verbosity=0)
     result = scanner.check_paths_for_authoritative_resources(".")
+    terraform_command = ["terraform"] + args
     if result["authoritative_files_found"]:
-        print("Authoritative files found. Not running `terraform`.")
+        count = result["authoritative_files_count"]
+        print(f"Authoritative files found ({count}). Run `tfas .` to view results.")
+        print(f"Not running `{' '.join(terraform_command)}`.")
         sys.exit(1)
 
     # If no authoritative files found, continue with `terraform`.
-    terraform_command = ["terraform"] + args
 
     print(f"No authoritative files found. Continuing with `{' '.join(terraform_command)}`...")
     print()
@@ -23,9 +25,18 @@ def run_tfas_and_terraform(args):
     os.execvp("terraform", terraform_command)
 
 
+def remove_leading_trailing_newline(text):
+    if text.startswith("\n"):
+        text = text[1:]
+    if text.endswith("\n"):
+        text = text[:-1]
+    return text
+
+
 def print_tfast_banner():
     print(
-        r"""
+        remove_leading_trailing_newline(
+            r"""
  __       ___                 __
 /\ \__  /'___\               /\ \__
 \ \ ,_\/\ \__/   __      ____\ \ ,_\
@@ -35,6 +46,7 @@ def print_tfast_banner():
     \/__/ \/_/ \/__/\/_/\/___/   \/__/
 
 """
+        )
     )
 
 
@@ -43,8 +55,6 @@ def is_terraform_directory():
 
 
 def main():
-    print_tfast_banner()
-
     parser = argparse.ArgumentParser(
         description="`tfas` Terraform wrapper. Ensures Terraform code in the current directory doesn't have any authoritative resources before running `terraform`."
     )
@@ -57,9 +67,9 @@ def main():
     )
     args = parser.parse_args()
 
+    print_tfast_banner()
     if not is_terraform_directory():
         print("No Terraform files found in the current directory. Please ensure you're in a directory with .tf files.")
         # parser.print_help()
         sys.exit(1)
-
     run_tfas_and_terraform(args.terraform_args)
