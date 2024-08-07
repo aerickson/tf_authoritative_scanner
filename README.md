@@ -5,7 +5,8 @@
 
 `tfas` performs static analysis on Terraform files to detect the presence of Terraformauthoritative resources (ARs). It scans a specified directory (and optionally hidden directories to inspect modules) for Terraform configuration files (.tf) and identifies lines containing these ARs.
 
-`tfast` is a Terraform porcelain (e.g. `tfast plan`). It will only run the specified Terraform command if `tfas` doesn't find any ARs.
+`tfast` is a Terraform porcelain (e.g. `tfast plan`). It will only run the specified Terraform command if `tfas` doesn't find any ARs in the current directory or subdirectories.
+
 
 ### Background and Comments
 
@@ -35,6 +36,7 @@ If you want to allow a specific usage of an authorized resource, add a comment w
       ...
     }
 ```
+
 
 ### Installation
 
@@ -86,10 +88,8 @@ tfast apply
 ```
 
 
-
-
-
 ## Development
+
 
 ### Testing Changes
 
