@@ -6,7 +6,7 @@ import sys
 import argparse
 import os.path
 
-from tf_authoritative_scanner.util import _get_version
+from tf_authoritative_scanner.util import _get_version, remove_leading_trailing_newline
 
 
 class TFAuthoritativeScanner:
@@ -173,14 +173,6 @@ class TFAuthoritativeScanner:
         else:
             print(f"PASS: {authoritative_files_found} of {total_files} scanned files are authoritative.")
             sys.exit(0)
-
-
-def remove_leading_trailing_newline(text):
-    if text.startswith("\n"):
-        text = text[1:]
-    if text.endswith("\n"):
-        text = text[:-1]
-    return text
 
 
 def print_tfas_banner():

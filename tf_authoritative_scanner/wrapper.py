@@ -28,6 +28,7 @@ class Wrapper:
         print()
 
         # Replace the current process with `terraform` command
+        # - avoids subprocess' issues with delaying output
         os.execvp(full_cmd_list[0], full_cmd_list)
 
     def print_tfast_banner(self):
