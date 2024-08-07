@@ -4,8 +4,14 @@ import os
 import re
 import sys
 import argparse
-import codecs
 import os.path
+
+from tf_authoritative_scanner.util import (
+    get_version,
+    remove_leading_trailing_newline,
+    verify_paths,
+    get_first_two_word_parts,
+)
 
 
 class TFAuthoritativeScanner:
@@ -60,7 +66,7 @@ class TFAuthoritativeScanner:
     #   - use patterns vs hardcoded list
     def authoritative_resource_in_line(self, line):
         _confidence = 100
-        word_parts = _get_first_two_word_parts(line)
+        word_parts = get_first_two_word_parts(line)
         first_word, second_word = word_parts
         if first_word == "resource":
             r = self.is_gcp_resource_name_authoritative(second_word)
@@ -116,6 +122,7 @@ class TFAuthoritativeScanner:
     def check_paths_for_authoritative_resources(self, directory):
         results = []
         total_files = 0
+        authoritative_files_found = 0
         for path in directory:
             if os.path.isdir(path):
                 files = self._scan_directory(path)
@@ -126,13 +133,21 @@ class TFAuthoritativeScanner:
                 total_files += 1
                 file_entry = self.check_file_for_authoritative_resources(file_path)
                 results.append(file_entry)
-        return {"files_scanned": total_files, "results": results}
+                if file_entry["authoritative"]:
+                    authoritative_files_found += 1
+        return {
+            "files_scanned": total_files,
+            "results": results,
+            "authoritative_files_found": True if authoritative_files_found > 0 else False,
+            "authoritative_files_count": authoritative_files_found,
+        }
 
     def run(self, paths):
         total_files = 0
         results = []
         authoritative_files_found = 0
 
+        verify_paths(paths)
         call_result = self.check_paths_for_authoritative_resources(paths)
         results = call_result.get("results")
         total_files = call_result.get("files_scanned")
@@ -165,53 +180,21 @@ class TFAuthoritativeScanner:
             print(f"PASS: {authoritative_files_found} of {total_files} scanned files are authoritative.")
             sys.exit(0)
 
-
-# TODO: move these to util files
-
-
-def _verify_paths(paths):
-    for path in paths:
-        if not os.path.exists(path):
-            print(f"Error: The path '{path}' does not exist.")
-            sys.exit(1)
-
-
-def _read(rel_path):
-    here = os.path.abspath(os.path.dirname(__file__))
-    with codecs.open(os.path.join(here, rel_path), "r") as fp:
-        return fp.read()
-
-
-def _get_version(rel_path):
-    for line in _read(rel_path).splitlines():
-        if line.startswith("__version__"):
-            delim = '"' if '"' in line else "'"
-            return line.split(delim)[1]
-    else:
-        raise RuntimeError("Unable to find version string.")
-
-
-def _remove_inner_quotes(s):
-    # Define patterns for both single and double quotes
-    double_quote_pattern = r"\"([^\"]*?)\""
-    single_quote_pattern = r"\'([^\']*?)\'"
-
-    # Remove inner quotes for double quotes
-    s = re.sub(double_quote_pattern, lambda m: m.group(0).replace('"', ""), s)
-    # Remove inner quotes for single quotes
-    s = re.sub(single_quote_pattern, lambda m: m.group(0).replace("'", ""), s)
-
-    return s
-
-
-# known issue: returns "", "" on less than two word-part strings
-def _get_first_two_word_parts(string):
-    word_parts = string.split()
-    if len(word_parts) < 2:
-        return "", ""
-    first_word = _remove_inner_quotes(word_parts[0])
-    second_word = _remove_inner_quotes(word_parts[1])
-    return first_word, second_word
+    def print_tfas_banner(self):
+        # return
+        print(
+            remove_leading_trailing_newline(
+                r"""
+ __       ___
+/\ \__  /'___\
+\ \ ,_\/\ \__/   __      ____
+ \ \ \/\ \ ,__\/'__`\   /',__\
+  \ \ \_\ \ \_/\ \L\.\_/\__, `\
+   \ \__\\ \_\\ \__/.\_\/\____/
+    \/__/ \/_/ \/__/\/_/\/___/
+    """
+            )
+        )
 
 
 # TODO: move this to a cli.py file
@@ -227,7 +210,7 @@ def main():
     parser.add_argument(
         "--version",
         action="version",
-        version=_get_version("__init__.py"),
+        version=get_version("__init__.py"),
     )
     parser.add_argument(
         "-v",
@@ -236,12 +219,10 @@ def main():
         default=0,
         help="Increase verbosity level (can be used multiple times)",
     )
+    parser.add_argument("--no-ascii-art", "-A", action="store_true", help="Do not print ASCII art")
     args = parser.parse_args()
 
-    _verify_paths(args.paths)
     scanner = TFAuthoritativeScanner(args.include_dotdirs, args.verbose)
+    if not args.no_ascii_art:
+        scanner.print_tfas_banner()
     scanner.run(args.paths)
-
-
-if __name__ == "__main__":
-    main()

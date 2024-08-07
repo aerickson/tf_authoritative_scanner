@@ -1,8 +1,12 @@
 # tf_authoritative_scanner
 
+
 ## Overview
 
-`tfas` performs static analysis on Terraform files to detect the presence of authoritative resources (currently only GCP Terraform resources, but pull requests welcome). It scans a specified directory (and optionally hidden directories to inspect modules) for Terraform configuration files (.tf) and identifies lines containing these authoritative resources.
+`tfas` performs static analysis on Terraform files to detect the presence of Terraformauthoritative resources (ARs). It scans a specified directory (and optionally hidden directories to inspect modules) for Terraform configuration files (.tf) and identifies lines containing these ARs.
+
+`tfast` is a Terraform porcelain (e.g. `tfast plan`). It will only run the specified Terraform command if `tfas` doesn't find any ARs in the current directory or subdirectories.
+
 
 ### Background and Comments
 
@@ -15,8 +19,8 @@ Authoritative Terraform resources should be used when setting up new infrastruct
 If you're working with existing infrastructure they should only be used once all infrastructure is being managed by Terraform.
 
 
-
 ## Usage
+
 
 ### Authoritative Resource Exceptions
 
@@ -33,7 +37,19 @@ If you want to allow a specific usage of an authorized resource, add a comment w
     }
 ```
 
-### Running via Pre-Commit
+
+### Installation
+
+```bash
+$ poetry build
+$ pipx install dist/tf_authoritative_scanner-1.0.X-py3-none-any.whl
+```
+
+
+### `tfas`
+
+
+#### Running via Pre-Commit
 
 Add the following to your `.pre-commit-config.yaml` file.
 
@@ -46,17 +62,13 @@ Add the following to your `.pre-commit-config.yaml` file.
 
 Stage the file then run `pre-commit autoupdate` to grab the latest release.
 
-### Running Interactively
 
-#### Normal Usage
+#### Running Interactively
 
 ```bash
-$ poetry build
-$ pip install dist/tf_authoritative_scanner-1.0.X-py3-none-any.whl
-
 $ tfas -h
-# help output
 ...
+
 $ tfas ~/git/terraform_repo/
 AUTHORITATIVE: ~/git/terraform_repo/project_red/iam.tf:10: resource "google_project_iam_binding" "compute_admin" {
 AUTHORITATIVE: ~/git/terraform_repo/project_blue/iam.tf:10: resource "google_project_iam_binding" "compute_admin" {
@@ -66,20 +78,29 @@ $ echo $?
 $
 ```
 
-#### Development
+
+### `tfast`
+
+```bash
+cd ~/git/your_terraform_repo
+tfast plan
+tfast apply
+```
+
+
+## Development
+
+
+### Testing Changes
 
 ```bash
 $ poetry shell
 $ poetry install
+# make changes to the code
 $ tfas
+$ tfast
 ```
 
-## Known Issues
-
-- resource names that have authoritative resource will alert
-  - use an exception comment for now
-
-## Development
 
 ### Version Bumping
 
@@ -95,14 +116,14 @@ poetry version -h
 poetry version patch
 ```
 
+
 ### TODO
 
 - publish to pypi
-- more advanced detection
-  - simple substring is used now, check for `resource "BLAH"` or `resource 'BLAH'`
-  - don't false trigger, see 'Known Issues' above
+- surface confidence in verbose mode
 - add an option to show the list of authoritative resources checked for
 - provide links to documentation when an authoritative resource is detected
+
 
 ## Relevant Links
 
