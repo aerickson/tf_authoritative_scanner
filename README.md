@@ -5,7 +5,7 @@
 
 `tfas` performs static analysis on Terraform files to detect the presence of Terraform authoritative resources (ARs)[^1]. It scans a specified directory (and optionally hidden directories to inspect modules) for Terraform configuration files (.tf) and identifies lines containing these ARs.
 
-`tfast` is a Terraform porcelain (e.g. `tfast plan` or `tfast apply`). It will only run the specified Terraform command if `tfas` doesn't find any ARs in the current directory or subdirectories.
+`tfast` is a Terraform porcelain (e.g. `tfast plan` or `tfast apply`) that integrates `tfas`. It will only run the specified Terraform command if `tfas` doesn't find any ARs in the current directory or subdirectories.
 
 [^1]:`tfas` currently only detects ARs in Google Cloud Platform (GCP) Terraform providers. Pull requests are welcome.
 
@@ -40,18 +40,7 @@ If you want to allow a specific usage of an authorized resource, add a comment w
 ```
 
 
-### Installation
-
-```bash
-$ poetry build
-$ pipx install dist/tf_authoritative_scanner-1.0.X-py3-none-any.whl
-```
-
-
-### `tfas`: authoritative resource scanner
-
-
-#### Running via Pre-Commit
+### Running via Pre-Commit
 
 Add the following to your `.pre-commit-config.yaml` file.
 
@@ -65,7 +54,20 @@ Add the following to your `.pre-commit-config.yaml` file.
 Stage the file then run `pre-commit autoupdate` to grab the latest release.
 
 
-#### Running Interactively
+
+### Running Interactively
+
+
+#### Installation
+
+```bash
+$ poetry build
+$ pipx install dist/tf_authoritative_scanner-1.0.X-py3-none-any.whl
+```
+
+
+#### Running `tfas`
+
 
 ```bash
 $ tfas -h
@@ -81,7 +83,7 @@ $
 ```
 
 
-### `tfast`: Terraform porcelain that integrates `tfas`
+#### Running `tfast`
 
 ```bash
 cd ~/git/your_terraform_repo
@@ -123,9 +125,6 @@ poetry version patch
 ### TODO
 
 - publish to pypi
-- more advanced detection
-  - simple substring is used now, check for `resource "BLAH"` or `resource 'BLAH'`
-  - don't false trigger, see 'Known Issues' above
 - add an option to show the list of authoritative resources checked for
 - provide links to documentation when an authoritative resource is detected
 - detect ARs in other providers
