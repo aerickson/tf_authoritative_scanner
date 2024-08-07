@@ -61,13 +61,14 @@ def main():
     parser.add_argument("terraform_args", nargs=argparse.REMAINDER, help="Arguments to pass to `terraform`")
     parser.add_argument(
         "--version",
-        "-v",
         action="version",
         version=_get_version("__init__.py"),
     )
+    parser.add_argument("--no-ascii-art", "-A", action="store_true", help="Do not print ASCII art")
     args = parser.parse_args()
 
-    print_tfast_banner()
+    if not args.no_ascii_art:
+        print_tfast_banner()
     if not is_terraform_directory():
         print("No Terraform files found in the current directory. Please ensure you're in a directory with .tf files.")
         # parser.print_help()

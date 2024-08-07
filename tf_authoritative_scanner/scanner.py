@@ -256,9 +256,11 @@ def main():
         default=0,
         help="Increase verbosity level (can be used multiple times)",
     )
+    parser.add_argument("--no-ascii-art", "-A", action="store_true", help="Do not print ASCII art")
     args = parser.parse_args()
 
-    print_tfas_banner()
+    if not args.no_ascii_art:
+        print_tfas_banner()
     _verify_paths(args.paths)
     scanner = TFAuthoritativeScanner(args.include_dotdirs, args.verbose)
     scanner.run(args.paths)
