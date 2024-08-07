@@ -129,7 +129,6 @@ poetry version patch
 - detect ARs in other providers
 
 
-
 ## Relevant Links
 
 - mentions the danger of authoritative resources and other reasons not to use
