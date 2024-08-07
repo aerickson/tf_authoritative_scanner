@@ -3,20 +3,22 @@
 
 ## Overview
 
-`tfas` performs static analysis on Terraform files to detect the presence of Terraformauthoritative resources (ARs). It scans a specified directory (and optionally hidden directories to inspect modules) for Terraform configuration files (.tf) and identifies lines containing these ARs.
+`tfas` performs static analysis on Terraform files to detect the presence of Terraform authoritative resources (ARs)[^1]. It scans a specified directory (and optionally hidden directories to inspect modules) for Terraform configuration files (.tf) and identifies lines containing these ARs.
 
-`tfast` is a Terraform porcelain (e.g. `tfast plan`). It will only run the specified Terraform command if `tfas` doesn't find any ARs in the current directory or subdirectories.
+`tfast` is a Terraform porcelain (e.g. `tfast plan` or `tfast apply`) that integrates `tfas`. It will only run the specified Terraform command if `tfas` doesn't find any ARs in the current directory or subdirectories.
+
+[^1]:`tfas` currently only detects ARs in Google Cloud Platform (GCP) Terraform providers. Pull requests are welcome.
 
 
 ### Background and Comments
 
-Authoritative Terraform resources are extremely dangerous because:
+Terraform authoritative resources (ARs) are extremely dangerous because:
 - they can and will remove non-Terraform managed resources
-- they won't mention actions in `terraform plan` output
+- they don't mention their actions in `terraform` output
 
-Authoritative Terraform resources should be used when setting up new infrastructure. It's desirable in this state to wipe out anything not in Terraform.
+ARs should be used when setting up new infrastructure. It's desirable in this state to wipe out anything not in Terraform.
 
-If you're working with existing infrastructure they should only be used once all infrastructure is being managed by Terraform.
+If you're working with existing infrastructure, ARs should only be used once all infrastructure is being managed by Terraform.
 
 
 ## Usage
@@ -38,18 +40,7 @@ If you want to allow a specific usage of an authorized resource, add a comment w
 ```
 
 
-### Installation
-
-```bash
-$ poetry build
-$ pipx install dist/tf_authoritative_scanner-1.0.X-py3-none-any.whl
-```
-
-
-### `tfas`
-
-
-#### Running via Pre-Commit
+### Running via Pre-Commit
 
 Add the following to your `.pre-commit-config.yaml` file.
 
@@ -63,7 +54,19 @@ Add the following to your `.pre-commit-config.yaml` file.
 Stage the file then run `pre-commit autoupdate` to grab the latest release.
 
 
-#### Running Interactively
+### Running Interactively
+
+
+#### Installation
+
+```bash
+$ poetry build
+$ pipx install dist/tf_authoritative_scanner-1.0.X-py3-none-any.whl
+```
+
+
+#### Running `tfas`
+
 
 ```bash
 $ tfas -h
@@ -79,7 +82,7 @@ $
 ```
 
 
-### `tfast`
+#### Running `tfast`
 
 ```bash
 cd ~/git/your_terraform_repo
@@ -123,6 +126,7 @@ poetry version patch
 - surface confidence in verbose mode
 - add an option to show the list of authoritative resources checked for
 - provide links to documentation when an authoritative resource is detected
+- detect ARs in other providers
 
 
 ## Relevant Links
