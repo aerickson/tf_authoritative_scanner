@@ -9,8 +9,8 @@ import os.path
 from tf_authoritative_scanner.util import (
     get_version,
     remove_leading_trailing_newline,
-    _verify_paths,
-    _get_first_two_word_parts,
+    verify_paths,
+    get_first_two_word_parts,
 )
 
 
@@ -66,7 +66,7 @@ class TFAuthoritativeScanner:
     #   - use patterns vs hardcoded list
     def authoritative_resource_in_line(self, line):
         _confidence = 100
-        word_parts = _get_first_two_word_parts(line)
+        word_parts = get_first_two_word_parts(line)
         first_word, second_word = word_parts
         if first_word == "resource":
             r = self.is_gcp_resource_name_authoritative(second_word)
@@ -225,5 +225,5 @@ def main():
     if not args.no_ascii_art:
         scanner.print_tfas_banner()
     # TODO: move this to scanner.run()
-    _verify_paths(args.paths)
+    verify_paths(args.paths)
     scanner.run(args.paths)
