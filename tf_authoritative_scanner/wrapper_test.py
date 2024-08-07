@@ -84,8 +84,9 @@ class TestWrapper:
         assert result.returncode == 1
 
     def test_run_tfas_and_terraform_good(self, temp_tf_dir_good: str):
-        result = subprocess.run(["tfast", "plan"], cwd=temp_tf_dir_good, capture_output=True, text=True)
-        assert "Terraform has compared your real infrastructure" in result.stdout
+        result = subprocess.run(["tfast", "-A", "plan"], cwd=temp_tf_dir_good, capture_output=True, text=True)
+        assert "Terraform has compared your real infrastructure against your configuration" in result.stdout
+        assert "found no differences" in result.stdout
         assert result.returncode == 0
 
     def test_run_tfas_and_terraform_empty(self, temp_tf_dir_empty: str):

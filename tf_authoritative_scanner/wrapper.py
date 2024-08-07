@@ -13,20 +13,22 @@ class Wrapper:
     def run_tfas_and_terraform(self, args):
         scanner = TFAuthoritativeScanner(include_dotdirs=False, verbosity=0)
         result = scanner.check_paths_for_authoritative_resources(".")
-        terraform_command = ["terraform"] + args
+        tf_cmd = "terraform"
+        full_cmd_list = [tf_cmd] + args
+        full_cmd_str = f"{tf_cmd} {' '.join(args)}"
         if result["authoritative_files_found"]:
             count = result["authoritative_files_count"]
             print(f"Authoritative files found ({count}). Run `tfas .` to view results.")
-            print(f"Not running `{' '.join(terraform_command)}`.")
+            print(f"Not running `{full_cmd_str}`.")
             sys.exit(1)
 
         # If no authoritative files found, continue with `terraform`.
 
-        print(f"No authoritative files found. Continuing with `{' '.join(terraform_command)}`...")
+        print(f"No authoritative files found. Continuing with `{full_cmd_str}`...")
         print()
 
         # Replace the current process with `terraform` command
-        os.execvp("terraform", terraform_command)
+        os.execvp(full_cmd_list[0], full_cmd_list)
 
     def print_tfast_banner(self):
         print(
