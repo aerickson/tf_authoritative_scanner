@@ -14,7 +14,7 @@
 
 Terraform authoritative resources (ARs) are extremely dangerous because:
 - they can and will remove non-Terraform managed resources
-- they won't mention actions in `terraform plan` output
+- they don't mention their actions in `terraform` output
 
 ARs should be used when setting up new infrastructure. It's desirable in this state to wipe out anything not in Terraform.
 
