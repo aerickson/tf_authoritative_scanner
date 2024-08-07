@@ -4,13 +4,12 @@ import re
 import sys
 
 
+# can raise FileNotFoundError if the file does not exist
 def get_version(rel_path):
     for line in read_path(rel_path).splitlines():
         if line.startswith("__version__"):
             delim = '"' if '"' in line else "'"
             return line.split(delim)[1]
-    else:
-        raise RuntimeError("Unable to find version string.")
 
 
 def read_path(rel_path):
