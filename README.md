@@ -65,15 +65,9 @@ Add the following to your `.pre-commit-config.yaml` file.
 Stage the file then run `pre-commit autoupdate` to grab the latest release.
 
 
-### Running Interactively
-
-
-#### Normal Usage
+#### Running Interactively
 
 ```bash
-$ poetry build
-$ pip install dist/tf_authoritative_scanner-1.0.X-py3-none-any.whl
-
 $ tfas -h
 # help output
 ...
