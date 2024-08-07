@@ -147,6 +147,7 @@ class TFAuthoritativeScanner:
         results = []
         authoritative_files_found = 0
 
+        verify_paths(paths)
         call_result = self.check_paths_for_authoritative_resources(paths)
         results = call_result.get("results")
         total_files = call_result.get("files_scanned")
@@ -224,6 +225,4 @@ def main():
     scanner = TFAuthoritativeScanner(args.include_dotdirs, args.verbose)
     if not args.no_ascii_art:
         scanner.print_tfas_banner()
-    # TODO: move this to scanner.run()
-    verify_paths(args.paths)
     scanner.run(args.paths)
