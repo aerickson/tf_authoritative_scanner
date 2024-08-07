@@ -71,6 +71,8 @@ jobs:
           echo "$HOME/.local/bin" >> $GITHUB_PATH
       - name: Install Dependencies
         run: poetry install
+      - name: Show tf version
+        run: terraform -v
       - name: Run tests
         run: |
           poetry run python -m pytest -sxv

@@ -54,7 +54,6 @@ Add the following to your `.pre-commit-config.yaml` file.
 Stage the file then run `pre-commit autoupdate` to grab the latest release.
 
 
-
 ### Running Interactively
 
 
@@ -71,8 +70,8 @@ $ pipx install dist/tf_authoritative_scanner-1.0.X-py3-none-any.whl
 
 ```bash
 $ tfas -h
-# help output
 ...
+
 $ tfas ~/git/terraform_repo/
 AUTHORITATIVE: ~/git/terraform_repo/project_red/iam.tf:10: resource "google_project_iam_binding" "compute_admin" {
 AUTHORITATIVE: ~/git/terraform_repo/project_blue/iam.tf:10: resource "google_project_iam_binding" "compute_admin" {
@@ -100,11 +99,10 @@ tfast apply
 ```bash
 $ poetry shell
 $ poetry install
+# make changes to the code
 $ tfas
 $ tfast
 ```
-
-## Development
 
 
 ### Version Bumping
@@ -125,9 +123,11 @@ poetry version patch
 ### TODO
 
 - publish to pypi
+- surface confidence in verbose mode
 - add an option to show the list of authoritative resources checked for
 - provide links to documentation when an authoritative resource is detected
 - detect ARs in other providers
+
 
 
 ## Relevant Links
