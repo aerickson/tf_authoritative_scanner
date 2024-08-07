@@ -167,7 +167,7 @@ class TFAuthoritativeScanner:
             sys.exit(0)
 
 
-def print_ascii_art_banner():
+def print_tfas_banner():
     print(
         r"""
  __       ___
@@ -217,7 +217,7 @@ def _get_first_two_word_parts(string):
 
 # TODO: move this to a cli.py file
 def main():
-    print_ascii_art_banner()
+    print_tfas_banner()
     parser = argparse.ArgumentParser(description="Static analysis of Terraform files for authoritative GCP resources.")
     parser.add_argument("paths", metavar="path", type=str, nargs="+", help="File or directory to scan")
     parser.add_argument(
