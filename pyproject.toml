@@ -8,7 +8,6 @@ readme = "README.md"
 [tool.poetry.dependencies]
 python = "^3.9"
 
-
 [tool.poetry.group.dev.dependencies]
 pytest = "^8.3.2"
 pytest-watch = "^4.2.0"
@@ -29,3 +28,29 @@ tfast = "tf_authoritative_scanner.wrapper:main"
 line-length = 120
 
 [tool.poetry_bumpversion.file."tf_authoritative_scanner/__init__.py"]
+
+[project]
+name = "black"
+description = "The uncompromising code formatter."
+license = { text = "MPL 2.0" }
+requires-python = ">=3.9"
+authors = [
+  { name = "Andrew J. Erickson", email = "aerickson@gmail.com" },
+]
+keywords = [
+  "terraform",
+]
+classifiers = [
+  "Environment :: Console",
+  "License :: OSI Approved :: MPL 2.0 License",
+  "Operating System :: OS Independent",
+  "Programming Language :: Python",
+  "Programming Language :: Python :: 3 :: Only",
+  "Programming Language :: Python :: 3.9",
+  "Programming Language :: Python :: 3.10",
+  "Programming Language :: Python :: 3.11",
+  "Programming Language :: Python :: 3.12",
+  "Programming Language :: Python :: 3.13",
+]
+dependencies = []
+# dynamic = ["readme", "version"]
