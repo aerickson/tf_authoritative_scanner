@@ -30,8 +30,8 @@ line-length = 120
 [tool.poetry_bumpversion.file."tf_authoritative_scanner/__init__.py"]
 
 [project]
-name = "black"
-description = "The uncompromising code formatter."
+name = "tf-authoritative-scanner"
+description = "Find and alert on authoritative resources in Terraform code"
 license = { text = "MPL 2.0" }
 requires-python = ">=3.9"
 authors = [
